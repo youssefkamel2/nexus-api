@@ -1,0 +1,237 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Http\Resources\ServiceResource;
+use App\Models\Service;
+use App\Traits\ResponseTrait;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+
+class ServiceController extends Controller
+{
+    use ResponseTrait;
+
+    /**
+     * Create a new ServiceController instance.
+     */
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
+
+    /**
+     * Get all services
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index()
+    {
+        $this->authorize('view_services');
+
+        $services = Service::with('author')->get()->map(function ($service) {
+            return [
+                'id' => $service->encoded_id,
+                'title' => $service->title,
+                'slug' => $service->slug,
+                'cover_photo' => $service->cover_photo ? asset('storage/' . $service->cover_photo) : null,
+                'is_active' => $service->is_active,
+                'author' => [
+                    'id' => $service->author->encoded_id,
+                    'name' => $service->author->name,
+                    'email' => $service->author->email,
+                ],
+                'created_at' => $service->created_at,
+                'updated_at' => $service->updated_at,
+            ];
+        });
+
+        return $this->success($services, 'Services retrieved successfully');
+    }
+
+    /**
+     * Get a specific service
+     *
+     * @param Service $service
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show($encodedId)
+    {
+        $this->authorize('view_services');
+
+        $service = Service::findByEncodedIdOrFail($encodedId);
+        return $this->success(new ServiceResource($service->load('author')), 'Service retrieved successfully');
+    }
+
+    /**
+     * Get service by slug
+     *
+     * @param string $slug
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getBySlug($slug)
+    {
+        $this->authorize('view_services');
+
+        $service = Service::with('author')->bySlug($slug)->first();
+
+        if (!$service) {
+            return $this->error('Service not found', 404);
+        }
+
+        return $this->success(new ServiceResource($service), 'Service retrieved successfully');
+    }
+
+    /**
+     * Create a new service
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function store(Request $request)
+    {
+        $this->authorize('create_services');
+
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:services,slug',
+            'cover_photo' => 'required|image|max:4096',
+            'content1' => 'required|string',
+            'image1' => 'sometimes|nullable|image|max:4096',
+            'content2' => 'required|string',
+            'image2' => 'sometimes|nullable|image|max:4096',
+            'content3' => 'required|string',
+            'image3' => 'sometimes|nullable|image|max:4096',
+            'is_active' => 'sometimes|boolean',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->first(), 422);
+        }
+
+        try {
+            $data = $validator->validated();
+            $data['created_by'] = Auth::id();
+
+            // Handle cover photo upload
+            if ($request->hasFile('cover_photo')) {
+                $data['cover_photo'] = $request->file('cover_photo')->store('services/covers', 'public');
+            }
+
+            // Handle section images
+            for ($i = 1; $i <= 3; $i++) {
+                if ($request->hasFile("image{$i}")) {
+                    $data["image{$i}"] = $request->file("image{$i}")->store("services/sections", 'public');
+                }
+            }
+
+            $service = Service::create($data);
+
+            return $this->success(new ServiceResource($service->load('author')), 'Service created successfully', 201);
+        } catch (\Exception $e) {
+            return $this->error('Failed to create service: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Update a service
+     *
+     * @param Request $request
+     * @param Service $service
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Request $request, $encodedId)
+    {
+        $this->authorize('edit_services');
+
+        $service = Service::findByEncodedIdOrFail($encodedId);
+        
+        $validator = Validator::make($request->all(), [
+            'title' => 'sometimes|required|string|max:255',
+            'slug' => 'sometimes|required|string|max:255|unique:services,slug,' . $service->id,
+            'cover_photo' => 'sometimes|nullable|image|max:4096',
+            'content1' => 'sometimes|required|string',
+            'image1' => 'sometimes|nullable|image|max:4096',
+            'content2' => 'sometimes|required|string',
+            'image2' => 'sometimes|nullable|image|max:4096',
+            'content3' => 'sometimes|required|string',
+            'image3' => 'sometimes|nullable|image|max:4096',
+            'is_active' => 'sometimes|boolean',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->first(), 422);
+        }
+
+        try {
+            $data = $validator->validated();
+
+            // Handle cover photo upload
+            if ($request->hasFile('cover_photo')) {
+                $data['cover_photo'] = $request->file('cover_photo')->store('services/covers', 'public');
+            }
+
+            // Handle section images
+            for ($i = 1; $i <= 3; $i++) {
+                if ($request->hasFile("image{$i}")) {
+                    $data["image{$i}"] = $request->file("image{$i}")->store("services/sections", 'public');
+                }
+            }
+
+            $service->update($data);
+
+            return $this->success(new ServiceResource($service->fresh()->load('author')), 'Service updated successfully');
+        } catch (\Exception $e) {
+            return $this->error('Failed to update service: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Delete a service
+     *
+     * @param Service $service
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy($encodedId)
+    {
+        $this->authorize('delete_services');
+
+        try {
+            $service = Service::findByEncodedIdOrFail($encodedId);
+            $service->delete();
+            return $this->success(null, 'Service deleted successfully');
+        } catch (\Exception $e) {
+            return $this->error('Failed to delete service: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Toggle service active status
+     *
+     * @param Service $service
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function toggleActive($encodedId)
+    {
+        $this->authorize('edit_services');
+
+        try {
+            $service = Service::findByEncodedIdOrFail($encodedId);
+            $service->update(['is_active' => !$service->is_active]);
+            
+            $status = $service->is_active ? 'activated' : 'deactivated';
+            return $this->success([
+                'service' => [
+                    'id' => $service->encoded_id,
+                    'title' => $service->title,
+                    'is_active' => $service->is_active,
+                ]
+            ], "Service {$status} successfully");
+        } catch (\Exception $e) {
+            return $this->error('Failed to toggle service status: ' . $e->getMessage(), 500);
+        }
+    }
+}
