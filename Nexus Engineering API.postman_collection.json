@@ -1,0 +1,1506 @@
+{
+	"info": {
+		"_postman_id": "f314dc09-17ba-438f-a1b7-9bb8f236fa70",
+		"name": "Nexus Engineering API",
+		"description": "Complete API collection for Nexus Engineering admin dashboard with secure ID management and services",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "24034895",
+		"_collection_link": "https://brainmate.postman.co/workspace/nexus~e5c30596-14a4-4f65-8ab9-655d80dda3c4/collection/24034895-f314dc09-17ba-438f-a1b7-9bb8f236fa70?action=share&source=collection_link&creator=24034895"
+	},
+	"item": [
+		{
+			"name": "Dashboard",
+			"item": [
+				{
+					"name": "Services",
+					"item": [
+						{
+							"name": "Get All Services",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const response = pm.response.json();",
+											"    if (response.success && response.data.length > 0) {",
+											"        pm.collectionVariables.set('sample_service_id', response.data[0].id);",
+											"        console.log('Sample service ID saved:', response.data[0].id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/admin/services",
+								"description": "Get all services for admin dashboard"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Service by ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/admin/services/{{sample_service_id}}",
+								"description": "Get specific service details using encoded ID"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Service by Slug",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/admin/services/slug/web-development",
+								"description": "Get service by slug for admin"
+							},
+							"response": []
+						},
+						{
+							"name": "Create New Service",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "title",
+											"value": "Web Development Services",
+											"type": "text"
+										},
+										{
+											"key": "slug",
+											"value": "web-development-services",
+											"type": "text"
+										},
+										{
+											"key": "cover_photo",
+											"type": "file",
+											"src": "postman-cloud:///1f09660e-5cad-4ef0-b7f1-bc93dda7f0d8"
+										},
+										{
+											"key": "content1",
+											"value": "<h2>Our Approach</h2><p>We build modern, responsive web applications using the latest technologies and best practices.</p>",
+											"type": "text"
+										},
+										{
+											"key": "image1",
+											"type": "file",
+											"src": "postman-cloud:///1f09660e-5cad-4ef0-b7f1-bc93dda7f0d8"
+										},
+										{
+											"key": "content2",
+											"value": "<h2>Technologies</h2><p>We specialize in Laravel, React, Vue.js, and modern database technologies.</p>",
+											"type": "text"
+										},
+										{
+											"key": "image2",
+											"type": "file",
+											"src": "postman-cloud:///1f09660e-5cad-4ef0-b7f1-bc93dda7f0d8"
+										},
+										{
+											"key": "content3",
+											"value": "<h2>Process</h2><p>Our agile development process ensures quality and timely delivery.</p>",
+											"type": "text"
+										},
+										{
+											"key": "image3",
+											"type": "file",
+											"src": "postman-cloud:///1f09660e-5cad-4ef0-b7f1-bc93dda7f0d8"
+										},
+										{
+											"key": "is_active",
+											"value": "1",
+											"type": "text"
+										}
+									]
+								},
+								"url": "{{base_url}}/admin/services",
+								"description": "Create a new service with file uploads"
+							},
+							"response": []
+						},
+						{
+							"name": "Update Service",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "title",
+											"value": "Updated Web Development Services",
+											"type": "text"
+										},
+										{
+											"key": "content1",
+											"value": "<h2>Enhanced Approach</h2><p>We build cutting-edge web applications with enhanced performance.</p>",
+											"type": "text"
+										}
+									]
+								},
+								"url": "{{base_url}}/admin/services/{{sample_service_id}}",
+								"description": "Update existing service using encoded ID"
+							},
+							"response": []
+						},
+						{
+							"name": "Toggle Service Active Status",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{base_url}}/admin/services/{{sample_service_id}}/toggle-active",
+								"description": "Toggle service active/inactive status"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Service",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{base_url}}/admin/services/{{sample_service_id}}",
+								"description": "Delete a service using encoded ID"
+							},
+							"response": []
+						}
+					],
+					"description": "Admin services management endpoints"
+				},
+				{
+					"name": "Projects",
+					"item": [
+						{
+							"name": "Get All Projects",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const response = pm.response.json();",
+											"    if (response.success && response.data.length > 0) {",
+											"        pm.collectionVariables.set('sample_project_id', response.data[0].id);",
+											"        console.log('Sample project ID saved:', response.data[0].id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/admin/projects",
+								"description": "Get all projects for admin dashboard"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Project by ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/admin/projects/{{sample_project_id}}",
+								"description": "Get specific project details using encoded ID"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Project by Slug",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/admin/projects/slug/nexus-website-redesign",
+								"description": "Get project by slug for admin"
+							},
+							"response": []
+						},
+						{
+							"name": "Create New Project",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "title",
+											"value": "Nexus Website Redesign",
+											"type": "text"
+										},
+										{
+											"key": "slug",
+											"value": "nexus-website-redesign",
+											"type": "text"
+										},
+										{
+											"key": "description",
+											"value": "Complete redesign of the Nexus Engineering corporate website with modern UI/UX, responsive design, and enhanced performance.",
+											"type": "text"
+										},
+										{
+											"key": "cover_photo",
+											"type": "file",
+											"src": []
+										},
+										{
+											"key": "content1",
+											"value": "<h2>Project Overview</h2><p>This project involves a complete overhaul of our corporate website, focusing on modern design principles, improved user experience, and enhanced performance.</p>",
+											"type": "text"
+										},
+										{
+											"key": "image1",
+											"type": "file",
+											"src": []
+										},
+										{
+											"key": "content2",
+											"value": "<h2>Technical Implementation</h2><p>The new website will be built using Laravel 10 for the backend, Vue.js for interactive components, and Tailwind CSS for styling.</p>",
+											"type": "text"
+										},
+										{
+											"key": "image2",
+											"type": "file",
+											"src": []
+										},
+										{
+											"key": "content3",
+											"value": "<h2>Expected Outcomes</h2><p>The redesigned website will feature improved loading speeds, better SEO optimization, mobile-first responsive design.</p>",
+											"type": "text"
+										},
+										{
+											"key": "image3",
+											"type": "file",
+											"src": []
+										},
+										{
+											"key": "is_active",
+											"value": "1",
+											"type": "text"
+										}
+									]
+								},
+								"url": "{{base_url}}/admin/projects",
+								"description": "Create a new project with file uploads"
+							},
+							"response": []
+						},
+						{
+							"name": "Update Project",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "title",
+											"value": "Updated Nexus Website Redesign",
+											"type": "text"
+										},
+										{
+											"key": "description",
+											"value": "Enhanced redesign of the Nexus Engineering corporate website with additional features including AI-powered chatbot.",
+											"type": "text"
+										}
+									]
+								},
+								"url": "{{base_url}}/admin/projects/{{sample_project_id}}",
+								"description": "Update existing project using encoded ID"
+							},
+							"response": []
+						},
+						{
+							"name": "Toggle Project Active Status",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{base_url}}/admin/projects/{{sample_project_id}}/toggle-active",
+								"description": "Toggle project active/inactive status"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Project",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{base_url}}/admin/projects/{{sample_project_id}}",
+								"description": "Delete a project using encoded ID"
+							},
+							"response": []
+						}
+					],
+					"description": "Admin projects management endpoints"
+				},
+				{
+					"name": "Jobs",
+					"item": [
+						{
+							"name": "Get All Jobs",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const response = pm.response.json();",
+											"    if (response.success && response.data.length > 0) {",
+											"        pm.collectionVariables.set('sample_job_id', response.data[0].id);",
+											"        console.log('Sample job ID saved:', response.data[0].id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/jobs",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"jobs"
+									],
+									"query": [
+										{
+											"key": "status",
+											"value": "active",
+											"disabled": true
+										},
+										{
+											"key": "type",
+											"value": "full-time",
+											"disabled": true
+										},
+										{
+											"key": "experience_level",
+											"value": "senior",
+											"disabled": true
+										},
+										{
+											"key": "search",
+											"value": "developer",
+											"disabled": true
+										},
+										{
+											"key": "featured",
+											"value": "true",
+											"disabled": true
+										}
+									]
+								},
+								"description": "Get all jobs with filtering options. Available filters: status (active/inactive), type, experience_level, search, featured"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Job Types & Options",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/admin/jobs/options",
+								"description": "Get all available job types, experience levels, and other options for form dropdowns"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Job by ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/admin/jobs/{{sample_job_id}}",
+								"description": "Get specific job details using encoded ID"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Job by Slug",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/admin/jobs/slug/senior-laravel-developer",
+								"description": "Get job by slug for admin"
+							},
+							"response": []
+						},
+						{
+							"name": "Create New Job",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Senior Laravel Developer\",\n    \"slug\": \"senior-laravel-developer\",\n    \"description\": \"We are looking for an experienced Laravel developer to join our dynamic team. You will be responsible for developing high-quality web applications using Laravel framework and modern development practices.\",\n    \"requirements\": \"• 5+ years of experience with PHP and Laravel framework\\n• Strong knowledge of MySQL, Redis, and Elasticsearch\\n• Experience with Vue.js or React\\n• Familiarity with Docker and AWS\\n• Experience with Git version control\\n• Strong problem-solving skills\\n• Excellent communication skills\",\n    \"location\": \"Cairo, Egypt\",\n    \"type\": \"full-time\",\n    \"experience_level\": \"senior\",\n    \"department\": \"Engineering\",\n    \"salary_range\": \"$3000 - $5000\",\n    \"benefits\": \"• Health insurance\\n• Flexible working hours\\n• Remote work options\\n• Professional development budget\\n• Annual bonus\\n• Paid vacation\",\n    \"application_deadline\": \"2025-12-31\",\n    \"is_active\": true,\n    \"is_featured\": true\n}"
+								},
+								"url": "{{base_url}}/admin/jobs",
+								"description": "Create a new job. Required fields: title, slug, description, requirements, location, type, experience_level. Optional: department, salary_range, benefits, application_deadline, is_active, is_featured"
+							},
+							"response": []
+						},
+						{
+							"name": "Update Job",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Senior Laravel Developer - Updated\",\n    \"description\": \"We are looking for an experienced Laravel developer to join our dynamic team. This is an updated job description with enhanced responsibilities.\",\n    \"salary_range\": \"$3500 - $5500\",\n    \"is_featured\": false\n}"
+								},
+								"url": "{{base_url}}/admin/jobs/{{sample_job_id}}",
+								"description": "Update existing job using encoded ID. All fields are optional for updates."
+							},
+							"response": []
+						},
+						{
+							"name": "Toggle Job Active Status",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{base_url}}/admin/jobs/{{sample_job_id}}/toggle-active",
+								"description": "Toggle job active/inactive status"
+							},
+							"response": []
+						},
+						{
+							"name": "Toggle Job Featured Status",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{base_url}}/admin/jobs/{{sample_job_id}}/toggle-featured",
+								"description": "Toggle job featured status for homepage display"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Job Statistics",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/admin/jobs/statistics",
+								"description": "Get comprehensive job statistics for dashboard analytics"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Job",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{base_url}}/admin/jobs/{{sample_job_id}}",
+								"description": "Delete a job (only if no applications exist)"
+							},
+							"response": []
+						}
+					],
+					"description": "Admin jobs management endpoints"
+				},
+				{
+					"name": "Job Applications",
+					"item": [
+						{
+							"name": "Get All Applications",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const response = pm.response.json();",
+											"    if (response.success && response.data.length > 0) {",
+											"        pm.collectionVariables.set('sample_application_id', response.data[0].id);",
+											"        console.log('Sample application ID saved:', response.data[0].id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/job-applications",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"job-applications"
+									],
+									"query": [
+										{
+											"key": "status",
+											"value": "pending",
+											"disabled": true
+										},
+										{
+											"key": "job_id",
+											"value": "{{sample_job_id}}",
+											"disabled": true
+										},
+										{
+											"key": "reviewed",
+											"value": "false",
+											"disabled": true
+										},
+										{
+											"key": "search",
+											"value": "john",
+											"disabled": true
+										}
+									]
+								},
+								"description": "Get all job applications with filters. Available filters: status, job_id, reviewed (true/false), search (name/email)"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Application Status Options",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/admin/job-applications/status-options",
+								"description": "Get all available application statuses and their colors for status management"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Application by ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/admin/job-applications/{{sample_application_id}}",
+								"description": "Get complete application details including documents and review history"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Applications by Job",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/admin/job-applications/job/{{sample_job_id}}",
+								"description": "Get all applications for a specific job"
+							},
+							"response": []
+						},
+						{
+							"name": "Update Application Status",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"status\": \"shortlisted\",\n    \"admin_notes\": \"Great candidate with excellent Laravel experience. Moving to next round.\"\n}"
+								},
+								"url": "{{base_url}}/admin/job-applications/{{sample_application_id}}/status",
+								"description": "Update application status. Available statuses: pending, reviewing, shortlisted, interview, rejected, hired"
+							},
+							"response": []
+						},
+						{
+							"name": "Add Admin Notes",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"admin_notes\": \"Candidate has strong technical skills but needs improvement in communication. Consider for technical interview.\"\n}"
+								},
+								"url": "{{base_url}}/admin/job-applications/{{sample_application_id}}/notes",
+								"description": "Add or update admin notes for application review"
+							},
+							"response": []
+						},
+						{
+							"name": "Download Resume",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/admin/job-applications/{{sample_application_id}}/download/resume",
+								"description": "Download applicant's resume file"
+							},
+							"response": []
+						},
+						{
+							"name": "Download Portfolio",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/admin/job-applications/{{sample_application_id}}/download/portfolio",
+								"description": "Download applicant's portfolio file"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Application Statistics",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/admin/job-applications/statistics",
+								"description": "Get comprehensive application statistics for dashboard analytics"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Application",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{base_url}}/admin/job-applications/{{sample_application_id}}",
+								"description": "Delete application and associated files"
+							},
+							"response": []
+						}
+					],
+					"description": "Admin job applications management endpoints"
+				},
+				{
+					"name": "Admin Management",
+					"item": [
+						{
+							"name": "Get All admins",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const response = pm.response.json();",
+											"    if (response.success && response.data.length > 0) {",
+											"        pm.collectionVariables.set('sample_user_id', response.data[0].id);",
+											"        console.log('Sample user ID saved:', response.data[0].id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/admin/users",
+								"description": "Get paginated list of users with optional search"
+							},
+							"response": []
+						},
+						{
+							"name": "Get admin by ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/admin/users/{{sample_user_id}}",
+								"description": "Get specific user details using encoded ID"
+							},
+							"response": []
+						},
+						{
+							"name": "Create New admin",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john0@nexusengineering.com\",\n    \"password\": \"SecurePass123!\",\n    \"permissions\": [\n        \"view_admins\",\n        \"view_services\",\n        \"create_services\"\n    ],\n    \"profile_image\": \"https://example.com/john-avatar.jpg\"\n}"
+								},
+								"url": "{{base_url}}/admin/users",
+								"description": "Create a new user with specific permissions"
+							},
+							"response": []
+						},
+						{
+							"name": "Update User",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"John Doe Updated\",\n    \"email\": \"john.updated@nexusengineering.com\",\n    \"permissions\": [\n        \"view_admins\",\n        \"view_services\",\n        \"create_services\",\n        \"edit_services\"\n    ]\n}"
+								},
+								"url": "{{base_url}}/admin/users/{{sample_user_id}}",
+								"description": "Update user information and permissions"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete User",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": "{{base_url}}/admin/users/{{sample_user_id}}",
+								"description": "Delete a user using encoded ID (cannot delete super admin)"
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Permissions",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/admin/permissions",
+								"description": "Get all available permissions grouped by category"
+							},
+							"response": []
+						},
+						{
+							"name": "Assign Permissions to User",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"permissions\": [\n        \"view_admins\",\n        \"view_services\",\n        \"create_services\"\n    ]\n}"
+								},
+								"url": "{{base_url}}/admin/permissions/assign/{{sample_user_id}}",
+								"description": "Assign specific permissions to a user"
+							},
+							"response": []
+						}
+					],
+					"description": "User management endpoints"
+				}
+			]
+		},
+		{
+			"name": "Public APIs",
+			"item": [
+				{
+					"name": "Services",
+					"item": [
+						{
+							"name": "Get All Active Services",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{base_url}}/public/services",
+								"description": "Get all active services for public website display"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Service by Slug",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{base_url}}/public/services/web-development-services",
+								"description": "Get service details by slug for public website"
+							},
+							"response": []
+						}
+					],
+					"description": "Public services API for website frontend"
+				},
+				{
+					"name": "Projects",
+					"item": [
+						{
+							"name": "Get All Active Projects",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{base_url}}/public/projects",
+								"description": "Get all active projects for public website display"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Project by Slug",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{base_url}}/public/projects/nexus-website-redesign",
+								"description": "Get project details by slug for public website"
+							},
+							"response": []
+						}
+					],
+					"description": "Public projects API for website frontend"
+				},
+				{
+					"name": "Jobs",
+					"item": [
+						{
+							"name": "Get All Active Jobs",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/public/jobs",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"public",
+										"jobs"
+									],
+									"query": [
+										{
+											"key": "type",
+											"value": "full-time",
+											"disabled": true
+										},
+										{
+											"key": "experience_level",
+											"value": "senior",
+											"disabled": true
+										},
+										{
+											"key": "location",
+											"value": "Cairo",
+											"disabled": true
+										},
+										{
+											"key": "search",
+											"value": "developer",
+											"disabled": true
+										},
+										{
+											"key": "featured",
+											"value": "true",
+											"disabled": true
+										},
+										{
+											"key": "sort_by",
+											"value": "created_at",
+											"disabled": true
+										},
+										{
+											"key": "sort_order",
+											"value": "desc",
+											"disabled": true
+										}
+									]
+								},
+								"description": "Get all active jobs with filtering and sorting. Available filters: type, experience_level, location, search, featured, sort_by, sort_order"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Featured Jobs",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{base_url}}/public/jobs/featured",
+								"description": "Get featured jobs for homepage display"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Job by Slug",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{base_url}}/public/jobs/senior-laravel-developer",
+								"description": "Get job details by slug for job application page"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Job Types",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{base_url}}/public/jobs/types",
+								"description": "Get available job types for filtering dropdown. Returns: {full-time: 'Full Time', part-time: 'Part Time', etc.}"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Experience Levels",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{base_url}}/public/jobs/experience-levels",
+								"description": "Get available experience levels for filtering dropdown. Returns: {entry: 'Entry Level', mid: 'Mid Level', etc.}"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Job Locations",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{base_url}}/public/jobs/locations",
+								"description": "Get available job locations for filtering dropdown. Returns array of unique locations from active jobs"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Availability Options",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{base_url}}/public/jobs/availability-options",
+								"description": "Get availability options for job application form. Returns: {immediate: 'Immediate', '2-weeks': '2 Weeks Notice', etc.}"
+							},
+							"response": []
+						},
+						{
+							"name": "Apply for Job",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "first_name",
+											"value": "John",
+											"type": "text",
+											"description": "Required: Applicant's first name"
+										},
+										{
+											"key": "last_name",
+											"value": "Doe",
+											"type": "text",
+											"description": "Required: Applicant's last name"
+										},
+										{
+											"key": "email",
+											"value": "john.doe@example.com",
+											"type": "text",
+											"description": "Required: Valid email address"
+										},
+										{
+											"key": "phone",
+											"value": "+201234567890",
+											"type": "text",
+											"description": "Required: Phone number"
+										},
+										{
+											"key": "address",
+											"value": "123 Main Street, Cairo, Egypt",
+											"type": "text",
+											"description": "Optional: Full address"
+										},
+										{
+											"key": "linkedin_profile",
+											"value": "https://linkedin.com/in/johndoe",
+											"type": "text",
+											"description": "Optional: LinkedIn profile URL"
+										},
+										{
+											"key": "portfolio_website",
+											"value": "https://johndoe.dev",
+											"type": "text",
+											"description": "Optional: Portfolio website URL"
+										},
+										{
+											"key": "cover_letter",
+											"value": "Dear Hiring Manager,\\n\\nI am writing to express my strong interest in the Senior Laravel Developer position at Nexus Engineering. With over 6 years of experience in PHP development and 4 years specifically with Laravel, I am confident that I would be a valuable addition to your team.\\n\\nThank you for considering my application.\\n\\nBest regards,\\nJohn Doe",
+											"type": "text",
+											"description": "Required: Cover letter text"
+										},
+										{
+											"key": "resume",
+											"type": "file",
+											"src": [],
+											"description": "Required: Resume file (PDF, DOC, DOCX - max 5MB)"
+										},
+										{
+											"key": "portfolio",
+											"type": "file",
+											"src": [],
+											"description": "Optional: Portfolio file (PDF, DOC, DOCX - max 10MB)"
+										},
+										{
+											"key": "additional_documents",
+											"type": "file",
+											"src": [],
+											"description": "Optional: Additional documents (PDF, DOC, DOCX, JPG, PNG - max 5MB each)"
+										},
+										{
+											"key": "years_of_experience",
+											"value": "6",
+											"type": "text",
+											"description": "Required: Number of years of experience (0-50)"
+										},
+										{
+											"key": "current_position",
+											"value": "Senior PHP Developer",
+											"type": "text",
+											"description": "Optional: Current job position"
+										},
+										{
+											"key": "current_company",
+											"value": "TechCorp Solutions",
+											"type": "text",
+											"description": "Optional: Current company name"
+										},
+										{
+											"key": "expected_salary",
+											"value": "4500",
+											"type": "text",
+											"description": "Optional: Expected salary amount"
+										},
+										{
+											"key": "availability",
+											"value": "1-month",
+											"type": "text",
+											"description": "Required: Availability (immediate, 2-weeks, 1-month, 2-months, negotiable)"
+										},
+										{
+											"key": "willing_to_relocate",
+											"value": "false",
+											"type": "text",
+											"description": "Optional: Willing to relocate (true/false)"
+										}
+									]
+								},
+								"url": "{{base_url}}/public/jobs/senior-laravel-developer/apply",
+								"description": "Submit job application with documents. Validates deadline, prevents duplicate applications, handles file uploads"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Job Statistics",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{base_url}}/public/jobs/statistics",
+								"description": "Get public job statistics for website display (total jobs, by type, by location)"
+							},
+							"response": []
+						}
+					],
+					"description": "Public jobs API for website frontend and job applications"
+				}
+			],
+			"description": "Public APIs for website frontend (no authentication required)"
+		},
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.success && response.data.token) {",
+									"        pm.collectionVariables.set('jwt_token', response.data.token);",
+									"        console.log('JWT token saved:', response.data.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@nexusengineering.com\",\n    \"password\": \"NexusAdmin2024!\"\n}"
+						},
+						"url": "{{base_url}}/admin/auth/login",
+						"description": "Login with super admin credentials"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": "{{base_url}}/admin/auth/profile",
+						"description": "Get current user profile"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated Admin Name\",\n    \"profile_image\": \"https://example.com/avatar.jpg\"\n}"
+						},
+						"url": "{{base_url}}/admin/auth/profile",
+						"description": "Update current user profile"
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.success && response.data.token) {",
+									"        pm.collectionVariables.set('jwt_token', response.data.token);",
+									"        console.log('JWT token refreshed:', response.data.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": "{{base_url}}/admin/auth/refresh",
+						"description": "Refresh JWT token"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.collectionVariables.set('jwt_token', '');",
+									"    console.log('JWT token cleared');",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": "{{base_url}}/admin/auth/logout",
+						"description": "Logout and invalidate token"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints for admin users"
+		},
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{base_url}}/health",
+				"description": "Check if the API is running"
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": {
+			"token": "{{jwt_token}}"
+		}
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8000/api"
+		},
+		{
+			"key": "jwt_token",
+			"value": ""
+		},
+		{
+			"key": "sample_user_id",
+			"value": ""
+		},
+		{
+			"key": "sample_service_id",
+			"value": ""
+		},
+		{
+			"key": "sample_project_id",
+			"value": ""
+		},
+		{
+			"key": "sample_job_id",
+			"value": ""
+		},
+		{
+			"key": "sample_application_id",
+			"value": ""
+		}
+	]
+}
