@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use App\Helpers\StorageHelper;
+
 
 class ServiceController extends Controller
 {
@@ -119,12 +121,16 @@ class ServiceController extends Controller
             // Handle cover photo upload
             if ($request->hasFile('cover_photo')) {
                 $data['cover_photo'] = $request->file('cover_photo')->store('services/covers', 'public');
+                // Sync to web-accessible storage
+                StorageHelper::syncToPublic($data['cover_photo']);
             }
 
             // Handle section images
             for ($i = 1; $i <= 3; $i++) {
                 if ($request->hasFile("image{$i}")) {
                     $data["image{$i}"] = $request->file("image{$i}")->store("services/sections", 'public');
+                    // Sync to web-accessible storage
+                    StorageHelper::syncToPublic($data["image{$i}"]);
                 }
             }
 
@@ -172,12 +178,16 @@ class ServiceController extends Controller
             // Handle cover photo upload
             if ($request->hasFile('cover_photo')) {
                 $data['cover_photo'] = $request->file('cover_photo')->store('services/covers', 'public');
+                // Sync to web-accessible storage
+                StorageHelper::syncToPublic($data['cover_photo']);
             }
 
             // Handle section images
             for ($i = 1; $i <= 3; $i++) {
                 if ($request->hasFile("image{$i}")) {
                     $data["image{$i}"] = $request->file("image{$i}")->store("services/sections", 'public');
+                    // Sync to web-accessible storage
+                    StorageHelper::syncToPublic($data["image{$i}"]);
                 }
             }
 
