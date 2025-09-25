@@ -32,6 +32,10 @@ Route::get('/health', function () {
     ]);
 });
 
+Route::get('/', function () {
+    return response()->json(['message' => 'Welcome to Nexus Engineering API']);
+});
+
 // Admin Authentication Routes
 Route::group(['prefix' => 'admin/auth'], function () {
     Route::post('/login', [AuthController::class, 'login']);
