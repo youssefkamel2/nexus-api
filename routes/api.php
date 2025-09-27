@@ -98,28 +98,48 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api']], function () {
         Route::get('/{encodedId}', [AdminJobController::class, 'show']);
         Route::get('/slug/{slug}', [AdminJobController::class, 'getBySlug']);
         Route::post('/', [AdminJobController::class, 'store']);
-        Route::put('/{encodedId}', [AdminJobController::class, 'update']);
         Route::delete('/{encodedId}', [AdminJobController::class, 'destroy']);
         Route::patch('/{encodedId}/toggle-active', [AdminJobController::class, 'toggleActive']);
     });
 
     // Job Applications Management
-    Route::group(['prefix' => 'job-applications'], function () {
-        Route::get('/', [AdminJobApplicationController::class, 'index']);
-        Route::get('/status-options', [AdminJobApplicationController::class, 'getStatusOptions']);
-        Route::get('/statistics', [AdminJobApplicationController::class, 'statistics']);
-        Route::get('/{encodedId}', [AdminJobApplicationController::class, 'show']);
-        Route::get('/job/{jobEncodedId}', [AdminJobApplicationController::class, 'getByJob']);
-        Route::patch('/{encodedId}/status', [AdminJobApplicationController::class, 'updateStatus']);
-        Route::patch('/{encodedId}/notes', [AdminJobApplicationController::class, 'addNotes']);
-        Route::get('/{encodedId}/download/{documentType}', [AdminJobApplicationController::class, 'downloadDocument']);
-        Route::delete('/{encodedId}', [AdminJobApplicationController::class, 'destroy']);
+    Route::prefix('job-applications')->group(function () {
+        Route::get('/', [JobApplicationController::class, 'index']);
+        Route::get('/status-options', [JobApplicationController::class, 'getStatusOptions']);
+        Route::get('/statistics', [JobApplicationController::class, 'statistics']);
+        Route::get('/job/{encodedId}', [JobApplicationController::class, 'getByJob']);
+        Route::get('/{encodedId}', [JobApplicationController::class, 'show']);
+        Route::patch('/{encodedId}/status', [JobApplicationController::class, 'updateStatus']);
+        Route::patch('/{encodedId}/notes', [JobApplicationController::class, 'addNotes']);
+        Route::get('/{encodedId}/download/cv', [JobApplicationController::class, 'downloadCV']);
+        Route::delete('/{encodedId}', [JobApplicationController::class, 'destroy']);
+    });
+
+    // Blog Management
+    Route::prefix('blogs')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\BlogController::class, 'index']);
+        Route::get('/options', [App\Http\Controllers\Admin\BlogController::class, 'getOptions']);
+        Route::get('/statistics', [App\Http\Controllers\Admin\BlogController::class, 'statistics']);
+        Route::post('/', [App\Http\Controllers\Admin\BlogController::class, 'store']);
+        Route::get('/slug/{slug}', [App\Http\Controllers\Admin\BlogController::class, 'getBySlug']);
+        Route::get('/{encodedId}', [App\Http\Controllers\Admin\BlogController::class, 'show']);
+        Route::put('/{encodedId}', [App\Http\Controllers\Admin\BlogController::class, 'update']);
+        Route::patch('/{encodedId}/toggle-active', [App\Http\Controllers\Admin\BlogController::class, 'toggleActive']);
+        Route::post('/mark-as-hero', [App\Http\Controllers\Admin\BlogController::class, 'markAsHero']);
+        Route::delete('/{encodedId}', [App\Http\Controllers\Admin\BlogController::class, 'destroy']);
+        
+        // Bulk operations
+        Route::post('/bulk-delete', [App\Http\Controllers\Admin\BlogController::class, 'bulkDelete']);
+        Route::post('/bulk-update-status', [App\Http\Controllers\Admin\BlogController::class, 'bulkUpdateStatus']);
+        Route::post('/bulk-update-category', [App\Http\Controllers\Admin\BlogController::class, 'bulkUpdateCategory']);
+        
+        // Content image upload
+        Route::post('/upload-content-image', [App\Http\Controllers\Admin\BlogController::class, 'uploadContentImage']);
     });
 });
 
 // Public API Routes (No Authentication Required)
 Route::group(['prefix' => 'public'], function () {
-    // Services
     Route::group(['prefix' => 'services'], function () {
         Route::get('/', [ApiServiceController::class, 'index']);
         Route::get('/{slug}', [ApiServiceController::class, 'getBySlug']);
@@ -127,23 +147,30 @@ Route::group(['prefix' => 'public'], function () {
     
     // Projects
     Route::group(['prefix' => 'projects'], function () {
-        Route::get('/', [ApiProjectController::class, 'index']);
         Route::get('/{slug}', [ApiProjectController::class, 'getBySlug']);
     });
     
     // Jobs
     Route::group(['prefix' => 'jobs'], function () {
         Route::get('/', [ApiJobController::class, 'index']);
-        Route::get('/statistics', [ApiJobController::class, 'statistics']);
-        Route::get('/types', [ApiJobController::class, 'getJobTypes']);
+        Route::get('/types', [ApiJobController::class, 'getTypes']);
         Route::get('/locations', [ApiJobController::class, 'getLocations']);
         Route::get('/availability-options', [ApiJobController::class, 'getAvailabilityOptions']);
         Route::get('/{slug}', [ApiJobController::class, 'getBySlug']);
         Route::post('/{slug}/apply', [ApiJobController::class, 'apply']);
+    });
+
+    // Blogs
+    Route::group(['prefix' => 'blogs'], function () {
+        Route::get('/', [App\Http\Controllers\Api\BlogController::class, 'index']);
+        Route::get('/landing', [App\Http\Controllers\Api\BlogController::class, 'landing']);
+        Route::get('/recent', [App\Http\Controllers\Api\BlogController::class, 'recent']);
+        Route::get('/categories', [App\Http\Controllers\Api\BlogController::class, 'categories']);
+        Route::get('/{slug}', [App\Http\Controllers\Api\BlogController::class, 'getBySlug']);
+        Route::get('/{slug}/related', [App\Http\Controllers\Api\BlogController::class, 'related']);
     });
 });
 
 // Legacy Sanctum route (keeping for compatibility)
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
-});

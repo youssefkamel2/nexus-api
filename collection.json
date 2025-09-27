@@ -250,6 +250,358 @@
 					"description": "Job management endpoints"
 				},
 				{
+					"name": "Blogs",
+					"item": [
+						{
+							"name": "Get All Blogs",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const response = pm.response.json();",
+											"    if (response.success && response.data.length > 0) {",
+											"        pm.collectionVariables.set('sample_blog_id', response.data[0].id);",
+											"        console.log('Sample blog ID saved:', response.data[0].id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/blogs",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"blogs"
+									],
+									"query": [
+										{
+											"key": "status",
+											"value": "active",
+											"disabled": true
+										},
+										{
+											"key": "category",
+											"value": "guides",
+											"disabled": true
+										},
+										{
+											"key": "search",
+											"value": "laravel",
+											"disabled": true
+										}
+									]
+								},
+								"description": "Get all blogs with filtering options"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Blog Options",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/blogs/options",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"blogs",
+										"options"
+									]
+								},
+								"description": "Get blog categories and validation rules"
+							},
+							"response": []
+						},
+						{
+							"name": "Create New Blog",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "title",
+											"value": "Getting Started with Laravel 10",
+											"type": "text"
+										},
+										{
+											"key": "slug",
+											"value": "getting-started-with-laravel-10",
+											"type": "text"
+										},
+										{
+											"key": "cover_photo",
+											"type": "file",
+											"src": []
+										},
+										{
+											"key": "category",
+											"value": "guides",
+											"type": "text"
+										},
+										{
+											"key": "content",
+											"value": "<h2>Introduction</h2><p>Laravel 10 brings exciting new features and improvements...</p>",
+											"type": "text"
+										},
+										{
+											"key": "tags",
+											"value": "[\"laravel\", \"php\", \"web development\"]",
+											"type": "text"
+										},
+										{
+											"key": "headings",
+											"value": "[{\"level\": 2, \"text\": \"Introduction\"}, {\"level\": 2, \"text\": \"Installation\"}]",
+											"type": "text"
+										},
+										{
+											"key": "mark_as_hero",
+											"value": "false",
+											"type": "text"
+										},
+										{
+											"key": "is_active",
+											"value": "true",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/admin/blogs",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"blogs"
+									]
+								},
+								"description": "Create a new blog with file upload"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Blog by ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/blogs/{{sample_blog_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"blogs",
+										"{{sample_blog_id}}"
+									]
+								},
+								"description": "Get specific blog details using encoded ID"
+							},
+							"response": []
+						},
+						{
+							"name": "Update Blog",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "title",
+											"value": "Advanced Laravel 10 Features",
+											"type": "text"
+										},
+										{
+											"key": "content",
+											"value": "<h2>Advanced Features</h2><p>Laravel 10 includes many advanced features...</p>",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/admin/blogs/{{sample_blog_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"blogs",
+										"{{sample_blog_id}}"
+									]
+								},
+								"description": "Update existing blog"
+							},
+							"response": []
+						},
+						{
+							"name": "Toggle Blog Status",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/admin/blogs/{{sample_blog_id}}/toggle-active",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"blogs",
+										"{{sample_blog_id}}",
+										"toggle-active"
+									]
+								},
+								"description": "Toggle blog active/inactive status"
+							},
+							"response": []
+						},
+						{
+							"name": "Mark as Hero",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"encoded_id\": \"{{sample_blog_id}}\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/admin/blogs/mark-as-hero",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"blogs",
+										"mark-as-hero"
+									]
+								},
+								"description": "Mark blog as hero (featured)"
+							},
+							"response": []
+						},
+						{
+							"name": "Upload Content Image",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "image",
+											"type": "file",
+											"src": []
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/admin/blogs/upload-content-image",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"blogs",
+										"upload-content-image"
+									]
+								},
+								"description": "Upload image for blog content editor"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Blog Statistics",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/blogs/statistics",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"blogs",
+										"statistics"
+									]
+								},
+								"description": "Get blog statistics for dashboard"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Blog",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/admin/blogs/{{sample_blog_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"blogs",
+										"{{sample_blog_id}}"
+									]
+								},
+								"description": "Delete a blog"
+							},
+							"response": []
+						}
+					],
+					"description": "Blog management endpoints"
+				},
+				{
 					"name": "Job Applications",
 					"item": [
 						{
@@ -678,6 +1030,192 @@
 						}
 					],
 					"description": "Public project endpoints"
+				},
+				{
+					"name": "Blogs",
+					"item": [
+						{
+							"name": "Get All Public Blogs",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/public/blogs",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"public",
+										"blogs"
+									],
+									"query": [
+										{
+											"key": "category",
+											"value": "guides",
+											"disabled": true
+										},
+										{
+											"key": "search",
+											"value": "laravel",
+											"disabled": true
+										}
+									]
+								},
+								"description": "Get all active blogs with filtering"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Landing Page Blogs",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/public/blogs/landing",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"public",
+										"blogs",
+										"landing"
+									]
+								},
+								"description": "Get hero, latest, guides, and trending blogs for landing page"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Blog by Slug",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/public/blogs/getting-started-with-laravel-10",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"public",
+										"blogs",
+										"getting-started-with-laravel-10"
+									]
+								},
+								"description": "Get blog details by slug"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Recent Blogs",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/public/blogs/recent",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"public",
+										"blogs",
+										"recent"
+									]
+								},
+								"description": "Get 5 most recent blogs (simplified)"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Related Blogs",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/public/blogs/getting-started-with-laravel-10/related",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"public",
+										"blogs",
+										"getting-started-with-laravel-10",
+										"related"
+									]
+								},
+								"description": "Get related blogs by category"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Blog Categories",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/public/blogs/categories",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"public",
+										"blogs",
+										"categories"
+									]
+								},
+								"description": "Get available blog categories"
+							},
+							"response": []
+						}
+					],
+					"description": "Public blog endpoints"
 				}
 			],
 			"description": "Public API endpoints (no authentication required)"
@@ -731,6 +1269,10 @@
 		},
 		{
 			"key": "sample_application_id",
+			"value": ""
+		},
+		{
+			"key": "sample_blog_id",
 			"value": ""
 		}
 	]
