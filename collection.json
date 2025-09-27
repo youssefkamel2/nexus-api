@@ -1,0 +1,737 @@
+{
+	"info": {
+		"_postman_id": "6bb1b02a-5c21-403a-9352-8b01a9fa587a",
+		"name": "Nexus Engineering API - Complete",
+		"description": "Complete API collection for Nexus Engineering with all endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwt_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.success && response.data.token) {",
+									"        pm.collectionVariables.set('jwt_token', response.data.token);",
+									"        console.log('JWT token saved:', response.data.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@nexusengineering.com\",\n    \"password\": \"NexusAdmin2024!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login with admin credentials"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/auth/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"auth",
+								"profile"
+							]
+						},
+						"description": "Get current user profile"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.collectionVariables.set('jwt_token', '');",
+									"    console.log('JWT token cleared');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/admin/auth/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Logout and invalidate token"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints"
+		},
+		{
+			"name": "Admin Dashboard",
+			"item": [
+				{
+					"name": "Jobs",
+					"item": [
+						{
+							"name": "Get All Jobs",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const response = pm.response.json();",
+											"    if (response.success && response.data.length > 0) {",
+											"        pm.collectionVariables.set('sample_job_id', response.data[0].id);",
+											"        console.log('Sample job ID saved:', response.data[0].id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/jobs",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"jobs"
+									]
+								},
+								"description": "Get all jobs for admin dashboard"
+							},
+							"response": []
+						},
+						{
+							"name": "Create New Job",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Senior Laravel Developer\",\n    \"slug\": \"senior-laravel-developer\",\n    \"location\": \"Cairo, Egypt\",\n    \"type\": \"full-time\",\n    \"key_responsibilities\": [\n        \"Develop and maintain web applications using Laravel framework\",\n        \"Write clean, maintainable, and efficient code\",\n        \"Collaborate with cross-functional teams to define and implement new features\"\n    ],\n    \"preferred_qualifications\": [\n        \"5+ years of PHP development experience\",\n        \"3+ years of Laravel framework experience\",\n        \"Strong knowledge of MySQL/PostgreSQL\"\n    ],\n    \"is_active\": true\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/admin/jobs",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"jobs"
+									]
+								},
+								"description": "Create a new job with simplified structure"
+							},
+							"response": []
+						},
+						{
+							"name": "Update Job",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Senior Laravel Developer - Updated\",\n    \"location\": \"Cairo, Egypt (Hybrid)\",\n    \"is_active\": true\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/admin/jobs/{{sample_job_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"jobs",
+										"{{sample_job_id}}"
+									]
+								},
+								"description": "Update existing job"
+							},
+							"response": []
+						}
+					],
+					"description": "Job management endpoints"
+				},
+				{
+					"name": "Job Applications",
+					"item": [
+						{
+							"name": "Get All Applications",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const response = pm.response.json();",
+											"    if (response.success && response.data.length > 0) {",
+											"        pm.collectionVariables.set('sample_application_id', response.data[0].id);",
+											"        console.log('Sample application ID saved:', response.data[0].id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/job-applications",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"job-applications"
+									]
+								},
+								"description": "Get all job applications"
+							},
+							"response": []
+						},
+						{
+							"name": "Download CV",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/job-applications/{{sample_application_id}}/download/cv",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"job-applications",
+										"{{sample_application_id}}",
+										"download",
+										"cv"
+									]
+								},
+								"description": "Download applicant's CV file"
+							},
+							"response": []
+						}
+					],
+					"description": "Job application management endpoints"
+				}
+			],
+			"description": "Admin dashboard endpoints"
+		},
+		{
+			"name": "Public API",
+			"item": [
+				{
+					"name": "Jobs",
+					"item": [
+						{
+							"name": "Get All Public Jobs",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/public/jobs",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"public",
+										"jobs"
+									],
+									"query": [
+										{
+											"key": "type",
+											"value": "full-time",
+											"disabled": true
+										},
+										{
+											"key": "location",
+											"value": "Cairo",
+											"disabled": true
+										},
+										{
+											"key": "search",
+											"value": "developer",
+											"disabled": true
+										}
+									]
+								},
+								"description": "Get all active jobs with filtering"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Job by Slug",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/public/jobs/senior-laravel-developer",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"public",
+										"jobs",
+										"senior-laravel-developer"
+									]
+								},
+								"description": "Get job details by slug"
+							},
+							"response": []
+						},
+						{
+							"name": "Apply for Job",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "John Doe",
+											"type": "text",
+											"description": "Required: Applicant's full name"
+										},
+										{
+											"key": "email",
+											"value": "john.doe@example.com",
+											"type": "text",
+											"description": "Required: Valid email address"
+										},
+										{
+											"key": "phone",
+											"value": "+201234567890",
+											"type": "text",
+											"description": "Required: Phone number"
+										},
+										{
+											"key": "years_of_experience",
+											"value": "5",
+											"type": "text",
+											"description": "Required: Years of experience"
+										},
+										{
+											"key": "message",
+											"value": "I am very interested in this position.",
+											"type": "text",
+											"description": "Optional: Cover letter"
+										},
+										{
+											"key": "cv",
+											"type": "file",
+											"src": [],
+											"description": "Required: CV file (PDF, DOC, DOCX - max 5MB)"
+										},
+										{
+											"key": "availability",
+											"value": "2-weeks",
+											"type": "text",
+											"description": "Required: Availability"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/public/jobs/senior-laravel-developer/apply",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"public",
+										"jobs",
+										"senior-laravel-developer",
+										"apply"
+									]
+								},
+								"description": "Submit job application with simplified structure"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Job Types",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/public/jobs/types",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"public",
+										"jobs",
+										"types"
+									]
+								},
+								"description": "Get available job types"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Job Locations",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/public/jobs/locations",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"public",
+										"jobs",
+										"locations"
+									]
+								},
+								"description": "Get available job locations"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Availability Options",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/public/jobs/availability-options",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"public",
+										"jobs",
+										"availability-options"
+									]
+								},
+								"description": "Get availability options for applications"
+							},
+							"response": []
+						}
+					],
+					"description": "Public job endpoints"
+				},
+				{
+					"name": "Services",
+					"item": [
+						{
+							"name": "Get All Public Services",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/public/services",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"public",
+										"services"
+									]
+								},
+								"description": "Get all active services for public website"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Service by Slug",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/public/services/web-development-services",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"public",
+										"services",
+										"web-development-services"
+									]
+								},
+								"description": "Get service details by slug"
+							},
+							"response": []
+						}
+					],
+					"description": "Public service endpoints"
+				},
+				{
+					"name": "Projects",
+					"item": [
+						{
+							"name": "Get All Public Projects",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/public/projects",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"public",
+										"projects"
+									]
+								},
+								"description": "Get all active projects for public website"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Project by Slug",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/public/projects/nexus-website-redesign",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"public",
+										"projects",
+										"nexus-website-redesign"
+									]
+								},
+								"description": "Get project details by slug"
+							},
+							"response": []
+						}
+					],
+					"description": "Public project endpoints"
+				}
+			],
+			"description": "Public API endpoints (no authentication required)"
+		},
+		{
+			"name": "Health Check",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/health",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"health"
+					]
+				},
+				"description": "Check if the API is running"
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8000/api"
+		},
+		{
+			"key": "jwt_token",
+			"value": ""
+		},
+		{
+			"key": "sample_user_id",
+			"value": ""
+		},
+		{
+			"key": "sample_service_id",
+			"value": ""
+		},
+		{
+			"key": "sample_project_id",
+			"value": ""
+		},
+		{
+			"key": "sample_job_id",
+			"value": ""
+		},
+		{
+			"key": "sample_application_id",
+			"value": ""
+		}
+	]
+}
