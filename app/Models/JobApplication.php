@@ -17,23 +17,13 @@ class JobApplication extends Model
      */
     protected $fillable = [
         'job_id',
-        'first_name',
-        'last_name',
+        'name',
         'email',
         'phone',
-        'address',
-        'linkedin_profile',
-        'portfolio_website',
-        'cover_letter',
-        'resume_path',
-        'portfolio_path',
-        'additional_documents',
         'years_of_experience',
-        'current_position',
-        'current_company',
-        'expected_salary',
+        'message',
+        'cv_path',
         'availability',
-        'willing_to_relocate',
         'status',
         'admin_notes',
         'reviewed_at',
@@ -46,9 +36,6 @@ class JobApplication extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'willing_to_relocate' => 'boolean',
-        'expected_salary' => 'decimal:2',
-        'additional_documents' => 'array',
         'reviewed_at' => 'datetime',
     ];
 
@@ -68,13 +55,6 @@ class JobApplication extends Model
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
-    /**
-     * Get the full name of the applicant
-     */
-    public function getFullNameAttribute()
-    {
-        return $this->first_name . ' ' . $this->last_name;
-    }
 
     /**
      * Scope a query to only include pending applications.

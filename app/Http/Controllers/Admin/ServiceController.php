@@ -38,6 +38,7 @@ class ServiceController extends Controller
             return [
                 'id' => $service->encoded_id,
                 'title' => $service->title,
+                'description' => $service->description,
                 'slug' => $service->slug,
                 'cover_photo' => $service->cover_photo ? asset('storage/' . $service->cover_photo) : null,
                 'is_active' => $service->is_active,
@@ -99,6 +100,7 @@ class ServiceController extends Controller
 
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
+            'description' => 'required|string',
             'slug' => 'required|string|max:255|unique:services,slug',
             'cover_photo' => 'required|image|max:4096',
             'content1' => 'required|string',
@@ -157,6 +159,7 @@ class ServiceController extends Controller
         
         $validator = Validator::make($request->all(), [
             'title' => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|required|string',
             'slug' => 'sometimes|required|string|max:255|unique:services,slug,' . $service->id,
             'cover_photo' => 'sometimes|nullable|image|max:4096',
             'content1' => 'sometimes|required|string',
@@ -177,17 +180,34 @@ class ServiceController extends Controller
 
             // Handle cover photo upload
             if ($request->hasFile('cover_photo')) {
+                // Delete old cover photo if exists
+                if ($service->cover_photo) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($service->cover_photo);
+                }
                 $data['cover_photo'] = $request->file('cover_photo')->store('services/covers', 'public');
                 // Sync to web-accessible storage
                 StorageHelper::syncToPublic($data['cover_photo']);
             }
 
-            // Handle section images
+            // Handle section images - check if they should be removed or updated
             for ($i = 1; $i <= 3; $i++) {
-                if ($request->hasFile("image{$i}")) {
-                    $data["image{$i}"] = $request->file("image{$i}")->store("services/sections", 'public');
+                $imageKey = "image{$i}";
+                
+                if ($request->hasFile($imageKey)) {
+                    // Delete old image if exists
+                    if ($service->$imageKey) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($service->$imageKey);
+                    }
+                    // Upload new image
+                    $data[$imageKey] = $request->file($imageKey)->store("services/sections", 'public');
                     // Sync to web-accessible storage
-                    StorageHelper::syncToPublic($data["image{$i}"]);
+                    StorageHelper::syncToPublic($data[$imageKey]);
+                } elseif ($request->has($imageKey) && $request->input($imageKey) === null) {
+                    // If image field is explicitly set to null, remove the existing image
+                    if ($service->$imageKey) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($service->$imageKey);
+                    }
+                    $data[$imageKey] = null;
                 }
             }
 

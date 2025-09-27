@@ -258,4 +258,29 @@ class AdminController extends Controller
         ], 'Permissions assigned successfully');
     }
 
+    // add toggle active status
+    public function toggleActive($encodedId)
+    {
+        $this->authorize('edit_admins');
+
+        try {
+            $user = User::findByEncodedIdOrFail($encodedId);
+            $user->update(['is_active' => !$user->is_active]);
+            
+            $status = $user->is_active ? 'activated' : 'deactivated';
+            return $this->success([
+                'admin' => [
+                    'id' => $user->encoded_id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'profile_image' => $user->profile_image,
+                    'permissions' => $user->getAllPermissions()->pluck('name')->toArray(),
+                    'created_at' => $user->created_at
+                ]
+            ], 'Admin ' . $status . ' successfully');
+        } catch (\Exception $e) {
+            return $this->error('Failed to toggle admin status: ' . $e->getMessage(), 500);
+        }
+    }
+
 }

@@ -111,29 +111,14 @@ class JobController extends Controller
             return $this->error('Job not found', 404);
         }
 
-        // Check if application deadline has passed
-        if ($job->application_deadline && $job->application_deadline->isPast()) {
-            return $this->error('Application deadline has passed', 422);
-        }
-
         $validator = Validator::make($request->all(), [
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'phone' => 'required|string|max:20',
-            'address' => 'sometimes|nullable|string',
-            'linkedin_profile' => 'sometimes|nullable|url',
-            'portfolio_website' => 'sometimes|nullable|url',
-            'cover_letter' => 'required|string',
-            'resume' => 'required|file|mimes:pdf,doc,docx|max:5120', // 5MB max
-            'portfolio' => 'sometimes|nullable|file|mimes:pdf,doc,docx|max:10240', // 10MB max
-            'additional_documents.*' => 'sometimes|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
             'years_of_experience' => 'required|integer|min:0|max:50',
-            'current_position' => 'sometimes|nullable|string|max:255',
-            'current_company' => 'sometimes|nullable|string|max:255',
-            'expected_salary' => 'sometimes|nullable|numeric|min:0',
+            'message' => 'sometimes|nullable|string',
+            'cv' => 'required|file|mimes:pdf,doc,docx|max:5120', // 5MB max
             'availability' => 'required|in:immediate,2-weeks,1-month,2-months,negotiable',
-            'willing_to_relocate' => 'sometimes|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -153,22 +138,11 @@ class JobController extends Controller
             $data = $validator->validated();
             $data['job_id'] = $job->id;
 
-            // Handle file uploads
-            if ($request->hasFile('resume')) {
-                $data['resume_path'] = $request->file('resume')->store('job-applications/resumes', 'public');
-            }
-
-            if ($request->hasFile('portfolio')) {
-                $data['portfolio_path'] = $request->file('portfolio')->store('job-applications/portfolios', 'public');
-            }
-
-            // Handle additional documents
-            if ($request->hasFile('additional_documents')) {
-                $additionalDocs = [];
-                foreach ($request->file('additional_documents') as $file) {
-                    $additionalDocs[] = $file->store('job-applications/additional', 'public');
-                }
-                $data['additional_documents'] = $additionalDocs;
+            // Handle CV upload
+            if ($request->hasFile('cv')) {
+                $data['cv_path'] = $request->file('cv')->store('job-applications/cvs', 'public');
+                // Sync to web-accessible storage
+                \App\Helpers\StorageHelper::syncToPublic($data['cv_path']);
             }
 
             $application = JobApplication::create($data);
