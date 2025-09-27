@@ -18,17 +18,11 @@ class Job extends Model
     protected $fillable = [
         'title',
         'slug',
-        'description',
-        'requirements',
         'location',
         'type',
-        'experience_level',
-        'department',
-        'salary_range',
-        'benefits',
-        'application_deadline',
+        'key_responsibilities',
+        'preferred_qualifications',
         'is_active',
-        'is_featured',
         'created_by',
     ];
 
@@ -39,8 +33,8 @@ class Job extends Model
      */
     protected $casts = [
         'is_active' => 'boolean',
-        'is_featured' => 'boolean',
-        'application_deadline' => 'date',
+        'key_responsibilities' => 'array',
+        'preferred_qualifications' => 'array',
     ];
 
     /**
@@ -76,14 +70,6 @@ class Job extends Model
     }
 
     /**
-     * Scope a query to only include featured jobs.
-     */
-    public function scopeFeatured($query)
-    {
-        return $query->where('is_featured', true);
-    }
-
-    /**
      * Scope a query to get job by slug.
      */
     public function scopeBySlug($query, $slug)
@@ -97,14 +83,6 @@ class Job extends Model
     public function scopeByType($query, $type)
     {
         return $query->where('type', $type);
-    }
-
-    /**
-     * Scope a query to filter by experience level.
-     */
-    public function scopeByExperienceLevel($query, $level)
-    {
-        return $query->where('experience_level', $level);
     }
 
     /**

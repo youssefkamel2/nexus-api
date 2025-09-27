@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Helpers\StorageHelper;
+
 
 class ProjectController extends Controller
 {
@@ -123,18 +125,26 @@ class ProjectController extends Controller
             // Handle file uploads
             if ($request->hasFile('cover_photo')) {
                 $data['cover_photo'] = $request->file('cover_photo')->store('projects/covers', 'public');
+                // Sync to web-accessible storage
+                StorageHelper::syncToPublic($data['cover_photo']);
             }
 
             if ($request->hasFile('image1')) {
                 $data['image1'] = $request->file('image1')->store('projects/sections', 'public');
+                // Sync to web-accessible storage
+                StorageHelper::syncToPublic($data['image1']);
             }
 
             if ($request->hasFile('image2')) {
                 $data['image2'] = $request->file('image2')->store('projects/sections', 'public');
+                // Sync to web-accessible storage
+                StorageHelper::syncToPublic($data['image2']);
             }
 
             if ($request->hasFile('image3')) {
                 $data['image3'] = $request->file('image3')->store('projects/sections', 'public');
+                // Sync to web-accessible storage
+                StorageHelper::syncToPublic($data['image3']);
             }
 
             $project = Project::create($data);
@@ -178,34 +188,43 @@ class ProjectController extends Controller
         try {
             $data = $validator->validated();
 
-            // Handle file uploads
+            // Handle cover photo upload
             if ($request->hasFile('cover_photo')) {
                 // Delete old file if exists
                 if ($project->cover_photo) {
                     Storage::disk('public')->delete($project->cover_photo);
                 }
                 $data['cover_photo'] = $request->file('cover_photo')->store('projects/covers', 'public');
+                // Sync to web-accessible storage
+                StorageHelper::syncToPublic($data['cover_photo']);
+            } elseif ($request->has('cover_photo') && $request->input('cover_photo') === null) {
+                // If cover_photo field is explicitly set to null, remove the existing image
+                if ($project->cover_photo) {
+                    Storage::disk('public')->delete($project->cover_photo);
+                }
+                $data['cover_photo'] = null;
             }
 
-            if ($request->hasFile('image1')) {
-                if ($project->image1) {
-                    Storage::disk('public')->delete($project->image1);
+            // Handle section images - check if they should be removed or updated
+            for ($i = 1; $i <= 3; $i++) {
+                $imageKey = "image{$i}";
+                
+                if ($request->hasFile($imageKey)) {
+                    // Delete old image if exists
+                    if ($project->$imageKey) {
+                        Storage::disk('public')->delete($project->$imageKey);
+                    }
+                    // Upload new image
+                    $data[$imageKey] = $request->file($imageKey)->store('projects/sections', 'public');
+                    // Sync to web-accessible storage
+                    StorageHelper::syncToPublic($data[$imageKey]);
+                } elseif ($request->has($imageKey) && $request->input($imageKey) === null) {
+                    // If image field is explicitly set to null, remove the existing image
+                    if ($project->$imageKey) {
+                        Storage::disk('public')->delete($project->$imageKey);
+                    }
+                    $data[$imageKey] = null;
                 }
-                $data['image1'] = $request->file('image1')->store('projects/sections', 'public');
-            }
-
-            if ($request->hasFile('image2')) {
-                if ($project->image2) {
-                    Storage::disk('public')->delete($project->image2);
-                }
-                $data['image2'] = $request->file('image2')->store('projects/sections', 'public');
-            }
-
-            if ($request->hasFile('image3')) {
-                if ($project->image3) {
-                    Storage::disk('public')->delete($project->image3);
-                }
-                $data['image3'] = $request->file('image3')->store('projects/sections', 'public');
             }
 
             $project->update($data);

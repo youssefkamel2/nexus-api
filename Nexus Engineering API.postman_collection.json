@@ -147,17 +147,40 @@
 										{
 											"key": "title",
 											"value": "Updated Web Development Services",
-											"type": "text"
+											"type": "text",
+											"description": "Optional: Update service title"
 										},
 										{
 											"key": "content1",
 											"value": "<h2>Enhanced Approach</h2><p>We build cutting-edge web applications with enhanced performance.</p>",
-											"type": "text"
+											"type": "text",
+											"description": "Optional: Update content section 1"
+										},
+										{
+											"key": "image1",
+											"value": "",
+											"type": "text",
+											"disabled": true,
+											"description": "Optional: Set to null (empty) to remove existing image1, or upload new file to replace"
+										},
+										{
+											"key": "image2",
+											"value": "",
+											"type": "text",
+											"disabled": true,
+											"description": "Optional: Set to null (empty) to remove existing image2, or upload new file to replace"
+										},
+										{
+											"key": "image3",
+											"value": "",
+											"type": "text",
+											"disabled": true,
+											"description": "Optional: Set to null (empty) to remove existing image3, or upload new file to replace"
 										}
 									]
 								},
 								"url": "{{base_url}}/admin/services/{{sample_service_id}}",
-								"description": "Update existing service using encoded ID"
+								"description": "Update existing service using encoded ID. To remove images: set image1/2/3 to null (empty value). To replace: upload new file."
 							},
 							"response": []
 						},
@@ -335,17 +358,47 @@
 										{
 											"key": "title",
 											"value": "Updated Nexus Website Redesign",
-											"type": "text"
+											"type": "text",
+											"description": "Optional: Update project title"
 										},
 										{
 											"key": "description",
 											"value": "Enhanced redesign of the Nexus Engineering corporate website with additional features including AI-powered chatbot.",
-											"type": "text"
+											"type": "text",
+											"description": "Optional: Update project description"
+										},
+										{
+											"key": "cover_photo",
+											"value": "",
+											"type": "text",
+											"disabled": true,
+											"description": "Optional: Set to null (empty) to remove existing cover photo, or upload new file to replace"
+										},
+										{
+											"key": "image1",
+											"value": "",
+											"type": "text",
+											"disabled": true,
+											"description": "Optional: Set to null (empty) to remove existing image1, or upload new file to replace"
+										},
+										{
+											"key": "image2",
+											"value": "",
+											"type": "text",
+											"disabled": true,
+											"description": "Optional: Set to null (empty) to remove existing image2, or upload new file to replace"
+										},
+										{
+											"key": "image3",
+											"value": "",
+											"type": "text",
+											"disabled": true,
+											"description": "Optional: Set to null (empty) to remove existing image3, or upload new file to replace"
 										}
 									]
 								},
 								"url": "{{base_url}}/admin/projects/{{sample_project_id}}",
-								"description": "Update existing project using encoded ID"
+								"description": "Update existing project using encoded ID. To remove images: set cover_photo/image1/2/3 to null (empty value). To replace: upload new file."
 							},
 							"response": []
 						},
@@ -494,10 +547,15 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"title\": \"Senior Laravel Developer\",\n    \"slug\": \"senior-laravel-developer\",\n    \"description\": \"We are looking for an experienced Laravel developer to join our dynamic team. You will be responsible for developing high-quality web applications using Laravel framework and modern development practices.\",\n    \"requirements\": \"• 5+ years of experience with PHP and Laravel framework\\n• Strong knowledge of MySQL, Redis, and Elasticsearch\\n• Experience with Vue.js or React\\n• Familiarity with Docker and AWS\\n• Experience with Git version control\\n• Strong problem-solving skills\\n• Excellent communication skills\",\n    \"location\": \"Cairo, Egypt\",\n    \"type\": \"full-time\",\n    \"experience_level\": \"senior\",\n    \"department\": \"Engineering\",\n    \"salary_range\": \"$3000 - $5000\",\n    \"benefits\": \"• Health insurance\\n• Flexible working hours\\n• Remote work options\\n• Professional development budget\\n• Annual bonus\\n• Paid vacation\",\n    \"application_deadline\": \"2025-12-31\",\n    \"is_active\": true,\n    \"is_featured\": true\n}"
+									"raw": "{\n    \"title\": \"Senior Laravel Developer\",\n    \"slug\": \"senior-laravel-developer\",\n    \"location\": \"Cairo, Egypt\",\n    \"type\": \"full-time\",\n    \"key_responsibilities\": [\n        \"Develop and maintain web applications using Laravel framework\",\n        \"Write clean, maintainable, and efficient code\",\n        \"Collaborate with cross-functional teams to define and implement new features\",\n        \"Optimize applications for maximum speed and scalability\",\n        \"Participate in code reviews and maintain coding standards\",\n        \"Troubleshoot and debug applications\",\n        \"Stay up-to-date with emerging technologies and industry trends\"\n    ],\n    \"preferred_qualifications\": [\n        \"5+ years of PHP development experience\",\n        \"3+ years of Laravel framework experience\",\n        \"Strong knowledge of MySQL/PostgreSQL\",\n        \"Experience with Git version control\",\n        \"Knowledge of RESTful API development\",\n        \"Familiarity with frontend technologies (Vue.js, React)\",\n        \"Bachelor's degree in Computer Science or related field\",\n        \"Experience with cloud platforms (AWS, Azure)\",\n        \"Knowledge of Docker and containerization\"\n    ],\n    \"is_active\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
 								},
 								"url": "{{base_url}}/admin/jobs",
-								"description": "Create a new job. Required fields: title, slug, description, requirements, location, type, experience_level. Optional: department, salary_range, benefits, application_deadline, is_active, is_featured"
+								"description": "Create a new job. Required fields: title, slug, location, type, key_responsibilities (array), preferred_qualifications (array). Optional: is_active"
 							},
 							"response": []
 						},
@@ -720,22 +778,12 @@
 							"response": []
 						},
 						{
-							"name": "Download Resume",
+							"name": "Download CV",
 							"request": {
 								"method": "GET",
 								"header": [],
-								"url": "{{base_url}}/admin/job-applications/{{sample_application_id}}/download/resume",
-								"description": "Download applicant's resume file"
-							},
-							"response": []
-						},
-						{
-							"name": "Download Portfolio",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": "{{base_url}}/admin/job-applications/{{sample_application_id}}/download/portfolio",
-								"description": "Download applicant's portfolio file"
+								"url": "{{base_url}}/admin/job-applications/{{sample_application_id}}/download/cv",
+								"description": "Download applicant's CV file"
 							},
 							"response": []
 						},
@@ -1173,16 +1221,10 @@
 									"mode": "formdata",
 									"formdata": [
 										{
-											"key": "first_name",
-											"value": "John",
+											"key": "name",
+											"value": "John Doe",
 											"type": "text",
-											"description": "Required: Applicant's first name"
-										},
-										{
-											"key": "last_name",
-											"value": "Doe",
-											"type": "text",
-											"description": "Required: Applicant's last name"
+											"description": "Required: Applicant's full name"
 										},
 										{
 											"key": "email",
@@ -1197,87 +1239,33 @@
 											"description": "Required: Phone number"
 										},
 										{
-											"key": "address",
-											"value": "123 Main Street, Cairo, Egypt",
-											"type": "text",
-											"description": "Optional: Full address"
-										},
-										{
-											"key": "linkedin_profile",
-											"value": "https://linkedin.com/in/johndoe",
-											"type": "text",
-											"description": "Optional: LinkedIn profile URL"
-										},
-										{
-											"key": "portfolio_website",
-											"value": "https://johndoe.dev",
-											"type": "text",
-											"description": "Optional: Portfolio website URL"
-										},
-										{
-											"key": "cover_letter",
-											"value": "Dear Hiring Manager,\\n\\nI am writing to express my strong interest in the Senior Laravel Developer position at Nexus Engineering. With over 6 years of experience in PHP development and 4 years specifically with Laravel, I am confident that I would be a valuable addition to your team.\\n\\nThank you for considering my application.\\n\\nBest regards,\\nJohn Doe",
-											"type": "text",
-											"description": "Required: Cover letter text"
-										},
-										{
-											"key": "resume",
-											"type": "file",
-											"src": [],
-											"description": "Required: Resume file (PDF, DOC, DOCX - max 5MB)"
-										},
-										{
-											"key": "portfolio",
-											"type": "file",
-											"src": [],
-											"description": "Optional: Portfolio file (PDF, DOC, DOCX - max 10MB)"
-										},
-										{
-											"key": "additional_documents",
-											"type": "file",
-											"src": [],
-											"description": "Optional: Additional documents (PDF, DOC, DOCX, JPG, PNG - max 5MB each)"
-										},
-										{
 											"key": "years_of_experience",
-											"value": "6",
+											"value": "5",
 											"type": "text",
-											"description": "Required: Number of years of experience (0-50)"
+											"description": "Required: Years of experience (integer)"
 										},
 										{
-											"key": "current_position",
-											"value": "Senior PHP Developer",
+											"key": "message",
+											"value": "I am very interested in this position and believe my skills align well with your requirements.",
 											"type": "text",
-											"description": "Optional: Current job position"
+											"description": "Optional: Cover letter or message to employer"
 										},
 										{
-											"key": "current_company",
-											"value": "TechCorp Solutions",
-											"type": "text",
-											"description": "Optional: Current company name"
-										},
-										{
-											"key": "expected_salary",
-											"value": "4500",
-											"type": "text",
-											"description": "Optional: Expected salary amount"
+											"key": "cv",
+											"type": "file",
+											"src": [],
+											"description": "Required: CV file (PDF, DOC, DOCX - max 5MB)"
 										},
 										{
 											"key": "availability",
-											"value": "1-month",
+											"value": "2-weeks",
 											"type": "text",
 											"description": "Required: Availability (immediate, 2-weeks, 1-month, 2-months, negotiable)"
-										},
-										{
-											"key": "willing_to_relocate",
-											"value": "false",
-											"type": "text",
-											"description": "Optional: Willing to relocate (true/false)"
 										}
 									]
 								},
 								"url": "{{base_url}}/public/jobs/senior-laravel-developer/apply",
-								"description": "Submit job application with documents. Validates deadline, prevents duplicate applications, handles file uploads"
+								"description": "Submit job application with CV. Required fields: name, email, phone, years_of_experience, cv (file), availability. Optional: message"
 							},
 							"response": []
 						},

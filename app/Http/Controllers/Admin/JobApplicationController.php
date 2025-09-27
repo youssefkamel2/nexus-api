@@ -231,13 +231,9 @@ class JobApplicationController extends Controller
             $fileName = null;
 
             switch ($documentType) {
-                case 'resume':
-                    $filePath = $application->resume_path;
-                    $fileName = $application->full_name . '_Resume.pdf';
-                    break;
-                case 'portfolio':
-                    $filePath = $application->portfolio_path;
-                    $fileName = $application->full_name . '_Portfolio.pdf';
+                case 'cv':
+                    $filePath = $application->cv_path;
+                    $fileName = $application->name . '_CV.pdf';
                     break;
                 default:
                     return $this->error('Invalid document type', 400);
@@ -267,16 +263,8 @@ class JobApplicationController extends Controller
             $application = JobApplication::findByEncodedIdOrFail($encodedId);
             
             // Delete associated files
-            if ($application->resume_path) {
-                Storage::disk('public')->delete($application->resume_path);
-            }
-            if ($application->portfolio_path) {
-                Storage::disk('public')->delete($application->portfolio_path);
-            }
-            if ($application->additional_documents) {
-                foreach ($application->additional_documents as $doc) {
-                    Storage::disk('public')->delete($doc);
-                }
+            if ($application->cv_path) {
+                Storage::disk('public')->delete($application->cv_path);
             }
             
             // Update job applications count

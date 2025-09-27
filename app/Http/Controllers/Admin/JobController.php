@@ -142,17 +142,11 @@ class JobController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:jobs,slug',
-            'description' => 'required|string',
-            'requirements' => 'required|string',
             'location' => 'required|string|max:255',
             'type' => 'required|in:full-time,part-time,contract,internship,remote',
-            'experience_level' => 'required|in:entry,mid,senior,executive',
-            'department' => 'sometimes|nullable|string|max:255',
-            'salary_range' => 'sometimes|nullable|string|max:255',
-            'benefits' => 'sometimes|nullable|string',
-            'application_deadline' => 'sometimes|nullable|date|after:today',
+            'key_responsibilities' => 'required|array',
+            'preferred_qualifications' => 'required|array',
             'is_active' => 'sometimes|boolean',
-            'is_featured' => 'sometimes|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -186,17 +180,11 @@ class JobController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'sometimes|required|string|max:255',
             'slug' => 'sometimes|required|string|max:255|unique:jobs,slug,' . $job->id,
-            'description' => 'sometimes|required|string',
-            'requirements' => 'sometimes|required|string',
             'location' => 'sometimes|required|string|max:255',
             'type' => 'sometimes|required|in:full-time,part-time,contract,internship,remote',
-            'experience_level' => 'sometimes|required|in:entry,mid,senior,executive',
-            'department' => 'sometimes|nullable|string|max:255',
-            'salary_range' => 'sometimes|nullable|string|max:255',
-            'benefits' => 'sometimes|nullable|string',
-            'application_deadline' => 'sometimes|nullable|date|after:today',
+            'key_responsibilities' => 'sometimes|required|array',
+            'preferred_qualifications' => 'sometimes|required|array',
             'is_active' => 'sometimes|boolean',
-            'is_featured' => 'sometimes|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -309,12 +297,6 @@ class JobController extends Controller
                     'internship' => 'Internship',
                     'remote' => 'Remote'
                 ],
-                'experience_levels' => [
-                    'entry' => 'Entry Level',
-                    'mid' => 'Mid Level',
-                    'senior' => 'Senior Level',
-                    'executive' => 'Executive Level'
-                ],
                 'availability_options' => [
                     'immediate' => 'Immediate',
                     '2-weeks' => '2 Weeks Notice',
@@ -325,17 +307,11 @@ class JobController extends Controller
                 'validation_rules' => [
                     'title' => 'required|string|max:255',
                     'slug' => 'required|string|max:255|unique:jobs,slug',
-                    'description' => 'required|string',
-                    'requirements' => 'required|string',
                     'location' => 'required|string|max:255',
                     'type' => 'required|in:full-time,part-time,contract,internship,remote',
-                    'experience_level' => 'required|in:entry,mid,senior,executive',
-                    'department' => 'sometimes|nullable|string|max:255',
-                    'salary_range' => 'sometimes|nullable|string|max:255',
-                    'benefits' => 'sometimes|nullable|string',
-                    'application_deadline' => 'sometimes|nullable|date|after:today',
-                    'is_active' => 'sometimes|boolean',
-                    'is_featured' => 'sometimes|boolean'
+                    'key_responsibilities' => 'required|array',
+                    'preferred_qualifications' => 'required|array',
+                    'is_active' => 'sometimes|boolean'
                 ]
             ];
 

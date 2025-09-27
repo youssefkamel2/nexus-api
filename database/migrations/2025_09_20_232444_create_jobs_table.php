@@ -15,27 +15,19 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->string('slug')->unique();
-            $table->text('description');
-            $table->longText('requirements');
             $table->string('location');
             $table->enum('type', ['full-time', 'part-time', 'contract', 'internship', 'remote']);
-            $table->enum('experience_level', ['entry', 'mid', 'senior', 'executive']);
-            $table->string('department')->nullable();
-            $table->string('salary_range')->nullable();
-            $table->text('benefits')->nullable();
-            $table->date('application_deadline')->nullable();
+            $table->json('key_responsibilities'); // JSON field for rich text editor content
+            $table->json('preferred_qualifications'); // JSON field for rich text editor content
             $table->boolean('is_active')->default(true);
-            $table->boolean('is_featured')->default(false);
             $table->integer('applications_count')->default(0);
             $table->unsignedBigInteger('created_by');
             $table->timestamps();
 
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
             $table->index(['is_active', 'created_at']);
-            $table->index(['is_featured', 'is_active']);
             $table->index('slug');
             $table->index('type');
-            $table->index('experience_level');
         });
     }
 

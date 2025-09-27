@@ -59,6 +59,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api']], function () {
         Route::post('/', [AdminController::class, 'createUser']);
         Route::put('/{encodedId}', [AdminController::class, 'updateUser']);
         Route::delete('/{encodedId}', [AdminController::class, 'deleteUser']);
+        Route::patch('/{encodedId}/toggle-active', [AdminController::class, 'toggleActive']);
     });
     
     // Permission Management

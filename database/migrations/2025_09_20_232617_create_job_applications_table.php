@@ -14,23 +14,13 @@ return new class extends Migration
         Schema::create('job_applications', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('job_id');
-            $table->string('first_name');
-            $table->string('last_name');
+            $table->string('name');
             $table->string('email');
             $table->string('phone');
-            $table->text('address')->nullable();
-            $table->string('linkedin_profile')->nullable();
-            $table->string('portfolio_website')->nullable();
-            $table->text('cover_letter');
-            $table->string('resume_path');
-            $table->string('portfolio_path')->nullable();
-            $table->json('additional_documents')->nullable(); // For multiple additional files
             $table->integer('years_of_experience')->default(0);
-            $table->string('current_position')->nullable();
-            $table->string('current_company')->nullable();
-            $table->decimal('expected_salary', 10, 2)->nullable();
+            $table->text('message')->nullable();
+            $table->string('cv_path'); // CV upload path
             $table->enum('availability', ['immediate', '2-weeks', '1-month', '2-months', 'negotiable']);
-            $table->boolean('willing_to_relocate')->default(false);
             $table->enum('status', ['pending', 'reviewing', 'shortlisted', 'interview', 'rejected', 'hired'])->default('pending');
             $table->text('admin_notes')->nullable();
             $table->timestamp('reviewed_at')->nullable();
