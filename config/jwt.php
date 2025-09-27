@@ -101,7 +101,8 @@ return [
     |
     */
 
-    'ttl' => env('JWT_TTL', 60),
+    // make the token not expire
+    'ttl' => null,
 
     /*
     |--------------------------------------------------------------------------
@@ -120,7 +121,7 @@ return [
     |
     */
 
-    'refresh_ttl' => env('JWT_REFRESH_TTL', 20160),
+    'refresh_ttl' => env('JWT_REFRESH_TTL', null),
 
     /*
     |--------------------------------------------------------------------------

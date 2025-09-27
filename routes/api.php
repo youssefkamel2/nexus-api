@@ -174,3 +174,4 @@ Route::group(['prefix' => 'public'], function () {
 // Legacy Sanctum route (keeping for compatibility)
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
