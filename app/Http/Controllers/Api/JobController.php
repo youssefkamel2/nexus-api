@@ -24,45 +24,27 @@ class JobController extends Controller
     {
         $query = Job::with('author')->active();
 
-        // Filter by featured
-        if ($request->has('featured') && $request->featured === 'true') {
-            $query->featured();
-        }
-
         // Filter by type
         if ($request->has('type')) {
-            $query->byType($request->type);
-        }
-
-        // Filter by experience level
-        if ($request->has('experience_level')) {
-            $query->byExperienceLevel($request->experience_level);
+            $query->where('type', $request->type);
         }
 
         // Filter by location
         if ($request->has('location')) {
-            $query->byLocation($request->location);
+            $query->where('location', 'like', '%' . $request->location . '%');
         }
 
-        // Search by title, location, or department
+        // Search by title or location
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', '%' . $search . '%')
-                  ->orWhere('location', 'like', '%' . $search . '%')
-                  ->orWhere('department', 'like', '%' . $search . '%');
+                  ->orWhere('location', 'like', '%' . $search . '%');
             });
         }
 
-        // Sort options
-        $sortBy = $request->get('sort_by', 'created_at');
-        $sortOrder = $request->get('sort_order', 'desc');
-
-        if ($sortBy === 'featured') {
-            $query->orderBy('is_featured', 'desc')->orderBy('created_at', 'desc');
-        } else {
-            $query->orderBy($sortBy, $sortOrder);
-        }
+        // Sort by created_at (newest first)
+        $query->orderBy('created_at', 'desc');
 
         $jobs = $query->get();
         return $this->success(JobResource::collection($jobs), 'Jobs retrieved successfully');
@@ -83,17 +65,6 @@ class JobController extends Controller
         }
 
         return $this->success(new JobResource($job), 'Job retrieved successfully');
-    }
-
-    /**
-     * Get featured jobs
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function featured()
-    {
-        $jobs = Job::with('author')->active()->featured()->orderBy('created_at', 'desc')->get();
-        return $this->success(JobResource::collection($jobs), 'Featured jobs retrieved successfully');
     }
 
     /**
@@ -183,23 +154,6 @@ class JobController extends Controller
     }
 
     /**
-     * Get experience levels for filtering
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getExperienceLevels()
-    {
-        $levels = [
-            'entry' => 'Entry Level',
-            'mid' => 'Mid Level',
-            'senior' => 'Senior Level',
-            'executive' => 'Executive Level'
-        ];
-
-        return $this->success($levels, 'Experience levels retrieved successfully');
-    }
-
-    /**
      * Get job locations for filtering
      *
      * @return \Illuminate\Http\JsonResponse
@@ -244,7 +198,6 @@ class JobController extends Controller
         try {
             $stats = [
                 'total_active_jobs' => Job::active()->count(),
-                'featured_jobs' => Job::active()->featured()->count(),
                 'jobs_by_type' => Job::active()
                     ->selectRaw('type, COUNT(*) as count')
                     ->groupBy('type')
@@ -255,6 +208,9 @@ class JobController extends Controller
                     ->orderBy('count', 'desc')
                     ->take(5)
                     ->pluck('count', 'location'),
+                'latest_jobs_count' => Job::active()
+                    ->where('created_at', '>=', now()->subDays(30))
+                    ->count(),
             ];
 
             return $this->success($stats, 'Job statistics retrieved successfully');

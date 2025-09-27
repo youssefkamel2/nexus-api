@@ -44,19 +44,9 @@ class JobController extends Controller
             }
         }
 
-        // Filter by featured
-        if ($request->has('featured') && $request->featured === 'true') {
-            $query->featured();
-        }
-
         // Filter by type
         if ($request->has('type')) {
             $query->byType($request->type);
-        }
-
-        // Filter by experience level
-        if ($request->has('experience_level')) {
-            $query->byExperienceLevel($request->experience_level);
         }
 
         // Search by title or location
@@ -64,8 +54,7 @@ class JobController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', '%' . $search . '%')
-                  ->orWhere('location', 'like', '%' . $search . '%')
-                  ->orWhere('department', 'like', '%' . $search . '%');
+                  ->orWhere('location', 'like', '%' . $search . '%');
             });
         }
 
@@ -76,12 +65,9 @@ class JobController extends Controller
                 'slug' => $job->slug,
                 'location' => $job->location,
                 'type' => $job->type,
-                'experience_level' => $job->experience_level,
-                'department' => $job->department,
-                'salary_range' => $job->salary_range,
-                'application_deadline' => $job->application_deadline?->format('Y-m-d'),
+                'key_responsibilities' => $job->key_responsibilities,
+                'preferred_qualifications' => $job->preferred_qualifications,
                 'is_active' => $job->is_active,
-                'is_featured' => $job->is_featured,
                 'applications_count' => $job->applications_count,
                 'author' => [
                     'id' => $job->author->encoded_id,
@@ -253,33 +239,6 @@ class JobController extends Controller
     }
 
     /**
-     * Toggle job featured status
-     *
-     * @param string $encodedId
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function toggleFeatured($encodedId)
-    {
-        $this->authorize('edit_jobs');
-
-        try {
-            $job = Job::findByEncodedIdOrFail($encodedId);
-            $job->update(['is_featured' => !$job->is_featured]);
-            
-            $status = $job->is_featured ? 'featured' : 'unfeatured';
-            return $this->success([
-                'job' => [
-                    'id' => $job->encoded_id,
-                    'title' => $job->title,
-                    'is_featured' => $job->is_featured,
-                ]
-            ], "Job {$status} successfully");
-        } catch (\Exception $e) {
-            return $this->error('Failed to toggle job featured status: ' . $e->getMessage(), 500);
-        }
-    }
-
-    /**
      * Get job options for form dropdowns
      *
      * @return \Illuminate\Http\JsonResponse
@@ -334,15 +293,15 @@ class JobController extends Controller
             $stats = [
                 'total_jobs' => Job::count(),
                 'active_jobs' => Job::active()->count(),
-                'featured_jobs' => Job::featured()->count(),
+                'inactive_jobs' => Job::where('is_active', false)->count(),
                 'jobs_by_type' => Job::selectRaw('type, COUNT(*) as count')
                     ->groupBy('type')
                     ->pluck('count', 'type'),
-                'jobs_by_experience' => Job::selectRaw('experience_level, COUNT(*) as count')
-                    ->groupBy('experience_level')
-                    ->pluck('count', 'experience_level'),
+                'jobs_by_location' => Job::selectRaw('location, COUNT(*) as count')
+                    ->groupBy('location')
+                    ->pluck('count', 'location'),
                 'total_applications' => \App\Models\JobApplication::count(),
-                'pending_applications' => \App\Models\JobApplication::pending()->count(),
+                'pending_applications' => \App\Models\JobApplication::where('status', 'pending')->count(),
             ];
 
             return $this->success($stats, 'Job statistics retrieved successfully');

@@ -101,7 +101,6 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api']], function () {
         Route::put('/{encodedId}', [AdminJobController::class, 'update']);
         Route::delete('/{encodedId}', [AdminJobController::class, 'destroy']);
         Route::patch('/{encodedId}/toggle-active', [AdminJobController::class, 'toggleActive']);
-        Route::patch('/{encodedId}/toggle-featured', [AdminJobController::class, 'toggleFeatured']);
     });
 
     // Job Applications Management
@@ -135,10 +134,8 @@ Route::group(['prefix' => 'public'], function () {
     // Jobs
     Route::group(['prefix' => 'jobs'], function () {
         Route::get('/', [ApiJobController::class, 'index']);
-        Route::get('/featured', [ApiJobController::class, 'featured']);
         Route::get('/statistics', [ApiJobController::class, 'statistics']);
         Route::get('/types', [ApiJobController::class, 'getJobTypes']);
-        Route::get('/experience-levels', [ApiJobController::class, 'getExperienceLevels']);
         Route::get('/locations', [ApiJobController::class, 'getLocations']);
         Route::get('/availability-options', [ApiJobController::class, 'getAvailabilityOptions']);
         Route::get('/{slug}', [ApiJobController::class, 'getBySlug']);
