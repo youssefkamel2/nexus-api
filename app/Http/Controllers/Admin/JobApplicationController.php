@@ -225,14 +225,14 @@ class JobApplicationController extends Controller
         $this->authorize('view_job_applications');
 
         try {
-            $application = JobApplication::findByEncodedIdOrFail($encodedId);
+            $application = JobApplication::find($encodedId);
 
             if ($documentType !== 'cv') {
                 return $this->error('Invalid document type', 400);
             }
 
-            if (!$application->cv_path) {
-                return $this->error('CV not found', 404);
+            if (!$application) {
+                return $this->error('Application not found', 404);
             }
             
             $filePath = $application->cv_path;
