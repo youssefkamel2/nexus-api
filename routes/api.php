@@ -147,6 +147,7 @@ Route::group(['prefix' => 'public'], function () {
     
     // Projects
     Route::group(['prefix' => 'projects'], function () {
+        Route::get('/', [ApiProjectController::class, 'index']);
         Route::get('/{slug}', [ApiProjectController::class, 'getBySlug']);
     });
     
