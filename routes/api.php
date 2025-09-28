@@ -98,21 +98,22 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api']], function () {
         Route::get('/{encodedId}', [AdminJobController::class, 'show']);
         Route::get('/slug/{slug}', [AdminJobController::class, 'getBySlug']);
         Route::post('/', [AdminJobController::class, 'store']);
+        Route::post('/{encodedId}', [AdminJobController::class, 'update']);
         Route::delete('/{encodedId}', [AdminJobController::class, 'destroy']);
         Route::patch('/{encodedId}/toggle-active', [AdminJobController::class, 'toggleActive']);
     });
 
     // Job Applications Management
     Route::prefix('job-applications')->group(function () {
-        Route::get('/', [JobApplicationController::class, 'index']);
-        Route::get('/status-options', [JobApplicationController::class, 'getStatusOptions']);
-        Route::get('/statistics', [JobApplicationController::class, 'statistics']);
-        Route::get('/job/{encodedId}', [JobApplicationController::class, 'getByJob']);
-        Route::get('/{encodedId}', [JobApplicationController::class, 'show']);
-        Route::patch('/{encodedId}/status', [JobApplicationController::class, 'updateStatus']);
-        Route::patch('/{encodedId}/notes', [JobApplicationController::class, 'addNotes']);
-        Route::get('/{encodedId}/download/cv', [JobApplicationController::class, 'downloadCV']);
-        Route::delete('/{encodedId}', [JobApplicationController::class, 'destroy']);
+        Route::get('/', [AdminJobApplicationController::class, 'index']);
+        Route::get('/status-options', [AdminJobApplicationController::class, 'getStatusOptions']);
+        Route::get('/statistics', [AdminJobApplicationController::class, 'statistics']);
+        Route::get('/job/{encodedId}', [AdminJobApplicationController::class, 'getByJob']);
+        Route::get('/{encodedId}', [AdminJobApplicationController::class, 'show']);
+        Route::patch('/{encodedId}/status', [AdminJobApplicationController::class, 'updateStatus']);
+        Route::patch('/{encodedId}/notes', [AdminJobApplicationController::class, 'addNotes']);
+        Route::get('/{encodedId}/download/cv', [AdminJobApplicationController::class, 'downloadCV']);
+        Route::delete('/{encodedId}', [AdminJobApplicationController::class, 'destroy']);
     });
 
     // Blog Management
