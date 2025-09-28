@@ -114,7 +114,7 @@ class BlogController extends Controller
             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:blogs,slug',
             'cover_photo' => 'required|image|max:4096',
-            'category' => 'required|in:trending,guides,insights',
+            'category' => 'required|in:trending,news',
             'content' => 'required|string',
             'tags' => 'sometimes|array',
             'tags.*' => 'string|max:50',
@@ -207,7 +207,7 @@ class BlogController extends Controller
             'title' => 'sometimes|string|max:255',
             'slug' => 'sometimes|string|max:255|unique:blogs,slug,' . $blog->id,
             'cover_photo' => 'sometimes|image|max:4096',
-            'category' => 'sometimes|in:trending,guides,insights',
+            'category' => 'sometimes|in:trending,news',
             'content' => 'sometimes|string',
             'tags' => 'sometimes|array',
             'tags.*' => 'string|max:50',
@@ -309,14 +309,13 @@ class BlogController extends Controller
             $options = [
                 'categories' => [
                     'trending' => 'Trending',
-                    'guides' => 'Guides',
-                    'insights' => 'Insights'
+                    'news' => 'News'
                 ],
                 'validation_rules' => [
                     'title' => 'required|string|max:255',
                     'slug' => 'required|string|max:255|unique:blogs,slug',
                     'cover_photo' => 'required|image|max:4096',
-                    'category' => 'required|in:trending,guides,insights',
+                    'category' => 'required|in:trending,news',
                     'content' => 'required|string',
                     'tags' => 'sometimes|array',
                     'headings' => 'sometimes',
@@ -401,7 +400,7 @@ class BlogController extends Controller
         $validator = Validator::make($request->all(), [
             'ids' => 'required|array',
             'ids.*' => 'exists:blogs,id',
-            'category' => 'required|in:trending,guides,insights',
+            'category' => 'required|in:trending,news',
         ]);
 
         if ($validator->fails()) {
@@ -457,7 +456,7 @@ class BlogController extends Controller
         $validator = Validator::make($request->all(), [
             'ids' => 'required|array',
             'ids.*' => 'exists:blogs,id',
-            'category' => 'sometimes|in:trending,guides,insights',
+            'category' => 'sometimes|in:trending,news',
             'is_active' => 'sometimes|boolean',
             'mark_as_hero' => 'sometimes|boolean',
         ]);

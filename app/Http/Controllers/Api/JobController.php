@@ -89,7 +89,7 @@ class JobController extends Controller
             'years_of_experience' => 'required|integer|min:0|max:50',
             'message' => 'sometimes|nullable|string',
             'cv' => 'required|file|mimes:pdf,doc,docx|max:5120', // 5MB max
-            'availability' => 'required|in:immediate,2-weeks,1-month,2-months,negotiable',
+            'availability' => 'required|string',
         ]);
 
         if ($validator->fails()) {

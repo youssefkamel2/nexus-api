@@ -12,7 +12,7 @@ class CreateBlogsTable extends Migration
             $table->id();
             $table->string('title');
             $table->string('cover_photo');
-            $table->enum('category', ['trending', 'guides', 'insights']);
+            $table->enum('category', ['trending', 'news']);
             $table->longText('content');
             $table->boolean('mark_as_hero')->default(false);
             $table->boolean('is_active')->default(true);
