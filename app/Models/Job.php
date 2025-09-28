@@ -33,8 +33,6 @@ class Job extends Model
      */
     protected $casts = [
         'is_active' => 'boolean',
-        'key_responsibilities' => 'array',
-        'preferred_qualifications' => 'array',
     ];
 
     /**

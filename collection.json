@@ -197,7 +197,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"title\": \"Senior Laravel Developer\",\n    \"slug\": \"senior-laravel-developer\",\n    \"location\": \"Cairo, Egypt\",\n    \"type\": \"full-time\",\n    \"key_responsibilities\": [\n        \"Develop and maintain web applications using Laravel framework\",\n        \"Write clean, maintainable, and efficient code\",\n        \"Collaborate with cross-functional teams to define and implement new features\"\n    ],\n    \"preferred_qualifications\": [\n        \"5+ years of PHP development experience\",\n        \"3+ years of Laravel framework experience\",\n        \"Strong knowledge of MySQL/PostgreSQL\"\n    ],\n    \"is_active\": true\n}"
+									"raw": "{\n    \"title\": \"Senior Laravel Developer\",\n    \"slug\": \"senior-laravel-developer\",\n    \"location\": \"Cairo, Egypt\",\n    \"type\": \"full-time\",\n    \"key_responsibilities\": \"<h3>Key Responsibilities</h3><ul><li>Develop and maintain web applications using Laravel framework</li><li>Write clean, maintainable, and efficient code</li><li>Collaborate with cross-functional teams to define and implement new features</li></ul>\",\n    \"preferred_qualifications\": \"<h3>Preferred Qualifications</h3><ul><li>5+ years of PHP development experience</li><li>3+ years of Laravel framework experience</li><li>Strong knowledge of MySQL/PostgreSQL</li></ul>\",\n    \"is_active\": true\n}"
 								},
 								"url": {
 									"raw": "{{base_url}}/admin/jobs",
@@ -634,9 +634,170 @@
 									"path": [
 										"admin",
 										"job-applications"
+									],
+									"query": [
+										{
+											"key": "status",
+											"value": "pending",
+											"disabled": true
+										},
+										{
+											"key": "job_id",
+											"value": "{{sample_job_id}}",
+											"disabled": true
+										}
 									]
 								},
-								"description": "Get all job applications"
+								"description": "Get all job applications with filtering"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Status Options",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/job-applications/status-options",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"job-applications",
+										"status-options"
+									]
+								},
+								"description": "Get available application status options"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Applications Statistics",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/job-applications/statistics",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"job-applications",
+										"statistics"
+									]
+								},
+								"description": "Get job applications statistics for dashboard"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Applications by Job",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/job-applications/job/{{sample_job_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"job-applications",
+										"job",
+										"{{sample_job_id}}"
+									]
+								},
+								"description": "Get all applications for a specific job"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Application Details",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/job-applications/{{sample_application_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"job-applications",
+										"{{sample_application_id}}"
+									]
+								},
+								"description": "Get specific application details"
+							},
+							"response": []
+						},
+						{
+							"name": "Update Application Status",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"status\": \"reviewed\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/admin/job-applications/{{sample_application_id}}/status",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"job-applications",
+										"{{sample_application_id}}",
+										"status"
+									]
+								},
+								"description": "Update application status (pending, reviewed, shortlisted, rejected, hired)"
+							},
+							"response": []
+						},
+						{
+							"name": "Add Notes to Application",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"notes\": \"Candidate has excellent technical skills and good communication. Recommended for next round.\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/admin/job-applications/{{sample_application_id}}/notes",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"job-applications",
+										"{{sample_application_id}}",
+										"notes"
+									]
+								},
+								"description": "Add or update notes for an application"
 							},
 							"response": []
 						},
@@ -659,6 +820,31 @@
 									]
 								},
 								"description": "Download applicant's CV file"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Application",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/admin/job-applications/{{sample_application_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"job-applications",
+										"{{sample_application_id}}"
+									]
+								},
+								"description": "Delete a job application"
 							},
 							"response": []
 						}

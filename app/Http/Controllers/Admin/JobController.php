@@ -130,8 +130,8 @@ class JobController extends Controller
             'slug' => 'required|string|max:255|unique:jobs,slug',
             'location' => 'required|string|max:255',
             'type' => 'required|in:full-time,part-time,contract,internship,remote',
-            'key_responsibilities' => 'required|array',
-            'preferred_qualifications' => 'required|array',
+            'key_responsibilities' => 'required|string',
+            'preferred_qualifications' => 'required|string',
             'is_active' => 'sometimes|boolean',
         ]);
 
@@ -168,8 +168,8 @@ class JobController extends Controller
             'slug' => 'sometimes|required|string|max:255|unique:jobs,slug,' . $job->id,
             'location' => 'sometimes|required|string|max:255',
             'type' => 'sometimes|required|in:full-time,part-time,contract,internship,remote',
-            'key_responsibilities' => 'sometimes|required|array',
-            'preferred_qualifications' => 'sometimes|required|array',
+            'key_responsibilities' => 'sometimes|required|string',
+            'preferred_qualifications' => 'sometimes|required|string',
             'is_active' => 'sometimes|boolean',
         ]);
 
