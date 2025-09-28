@@ -220,24 +220,23 @@ class JobApplicationController extends Controller
      * @param string $documentType
      * @return \Illuminate\Http\Response
      */
-    public function downloadDocument($encodedId, $documentType)
+    public function downloadDocument($encodedId, $documentType = 'cv')
     {
         $this->authorize('view_job_applications');
 
         try {
             $application = JobApplication::findByEncodedIdOrFail($encodedId);
-            
-            $filePath = null;
-            $fileName = null;
 
-            switch ($documentType) {
-                case 'cv':
-                    $filePath = $application->cv_path;
-                    $fileName = $application->name . '_CV.pdf';
-                    break;
-                default:
-                    return $this->error('Invalid document type', 400);
+            if ($documentType !== 'cv') {
+                return $this->error('Invalid document type', 400);
             }
+
+            if (!$application->cv_path) {
+                return $this->error('CV not found', 404);
+            }
+            
+            $filePath = $application->cv_path;
+            $fileName = $application->name . '_CV.pdf';
 
             if (!$filePath || !Storage::disk('public')->exists($filePath)) {
                 return $this->error('Document not found', 404);
