@@ -68,13 +68,13 @@ class BlogController extends Controller
         }
 
         $latest = Blog::with(['author', 'faqs'])->active()->latest()->take(3)->get();
-        $guides = Blog::with(['author', 'faqs'])->active()->byCategory('guides')->latest()->take(3)->get();
+        $news = Blog::with(['author', 'faqs'])->active()->byCategory('news')->latest()->take(3)->get();
         $trending = Blog::with(['author', 'faqs'])->active()->byCategory('trending')->latest()->take(3)->get();
 
         return $this->success([
             'hero' => $hero ? new BlogResource($hero) : null,
             'latest' => BlogResource::collection($latest),
-            'guides' => BlogResource::collection($guides),
+            'news' => BlogResource::collection($news),
             'trending' => BlogResource::collection($trending),
         ], 'Landing blogs retrieved successfully');
     }
@@ -151,8 +151,7 @@ class BlogController extends Controller
     {
         $categories = [
             'trending' => 'Trending',
-            'guides' => 'Guides',
-            'insights' => 'Insights'
+            'news' => 'News'
         ];
 
         return $this->success($categories, 'Blog categories retrieved successfully');
