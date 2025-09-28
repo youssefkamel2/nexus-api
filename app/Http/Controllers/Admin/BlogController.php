@@ -52,6 +52,7 @@ class BlogController extends Controller
      */
     public function index(Request $request)
     {
+        
         $this->authorize('view_blogs');
 
         $query = Blog::with('author');

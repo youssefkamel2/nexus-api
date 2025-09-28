@@ -14,5 +14,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return response()->json(['message' => 'Welcome to Nexus Engineering API']);
+    return view('welcome');
 });
+
+// Include cache clearing routes (REMOVE AFTER USE!)
+require __DIR__.'/cache-clear.php';

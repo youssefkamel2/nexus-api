@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('years_of_experience')->default(0);
             $table->text('message')->nullable();
             $table->string('cv_path'); // CV upload path
-            $table->enum('availability', ['immediate', '2-weeks', '1-month', '2-months', 'negotiable']);
+            $table->string('availability');
             $table->enum('status', ['pending', 'reviewing', 'shortlisted', 'interview', 'rejected', 'hired'])->default('pending');
             $table->text('admin_notes')->nullable();
             $table->timestamp('reviewed_at')->nullable();

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->string('location');
             $table->enum('type', ['full-time', 'part-time', 'contract', 'internship', 'remote']);
+            $table->string('availability');
             $table->json('key_responsibilities'); // JSON field for rich text editor content
             $table->json('preferred_qualifications'); // JSON field for rich text editor content
             $table->boolean('is_active')->default(true);

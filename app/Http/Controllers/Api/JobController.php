@@ -171,24 +171,6 @@ class JobController extends Controller
     }
 
     /**
-     * Get availability options for job application form
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getAvailabilityOptions()
-    {
-        $options = [
-            'immediate' => 'Immediate',
-            '2-weeks' => '2 Weeks Notice',
-            '1-month' => '1 Month Notice',
-            '2-months' => '2 Months Notice',
-            'negotiable' => 'Negotiable'
-        ];
-
-        return $this->success($options, 'Availability options retrieved successfully');
-    }
-
-    /**
      * Get job statistics for public display
      *
      * @return \Illuminate\Http\JsonResponse
