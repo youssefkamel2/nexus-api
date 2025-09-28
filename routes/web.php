@@ -16,6 +16,3 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
-
-// Include cache clearing routes (REMOVE AFTER USE!)
-require __DIR__.'/cache-clear.php';

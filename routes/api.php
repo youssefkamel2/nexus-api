@@ -112,7 +112,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api']], function () {
         Route::get('/{encodedId}', [AdminJobApplicationController::class, 'show']);
         Route::patch('/{encodedId}/status', [AdminJobApplicationController::class, 'updateStatus']);
         Route::patch('/{encodedId}/notes', [AdminJobApplicationController::class, 'addNotes']);
-        Route::get('/{encodedId}/download/cv', [AdminJobApplicationController::class, 'downloadCV']);
+        Route::get('/{encodedId}/download/cv', [AdminJobApplicationController::class, 'downloadDocument']);
         Route::delete('/{encodedId}', [AdminJobApplicationController::class, 'destroy']);
     });
 
