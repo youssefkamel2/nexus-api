@@ -38,6 +38,7 @@ class AdminController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'profile_image' => $user->profile_image,
+                'is_active' => $user->is_active,
                 'permissions' => $user->getAllPermissions()->pluck('name')->toArray(),
                 'created_at' => $user->created_at
             ];

@@ -47,6 +47,11 @@ Route::group(['prefix' => 'admin/auth'], function () {
         Route::get('/profile', [AuthController::class, 'profile']);
         Route::put('/profile', [AuthController::class, 'updateProfile']);
     });
+
+    Route::group(['prefix' => 'settings'], function () {
+        Route::post('/request-update', [AdminSettingsController::class, 'requestUpdate']);
+        Route::post('/confirm-update', [AdminSettingsController::class, 'confirmUpdate']);
+    });
 });
 
 // Admin Dashboard Routes
@@ -177,9 +182,7 @@ Route::group(['prefix' => 'public'], function () {
     // Jobs
     Route::group(['prefix' => 'jobs'], function () {
         Route::get('/', [ApiJobController::class, 'index']);
-        Route::get('/types', [ApiJobController::class, 'getTypes']);
         Route::get('/locations', [ApiJobController::class, 'getLocations']);
-        Route::get('/availability-options', [ApiJobController::class, 'getAvailabilityOptions']);
         Route::get('/{slug}', [ApiJobController::class, 'getBySlug']);
         Route::post('/{slug}/apply', [ApiJobController::class, 'apply']);
     });

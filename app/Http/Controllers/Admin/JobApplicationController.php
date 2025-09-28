@@ -259,8 +259,12 @@ class JobApplicationController extends Controller
         $this->authorize('delete_job_applications');
 
         try {
-            $application = JobApplication::findByEncodedIdOrFail($encodedId);
+            $application = JobApplication::find($encodedId);
             
+            if (!$application) {
+                return $this->error('Application not found', 404);
+            }
+
             // Delete associated files
             if ($application->cv_path) {
                 Storage::disk('public')->delete($application->cv_path);
