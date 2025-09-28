@@ -137,6 +137,28 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api']], function () {
         // Content image upload
         Route::post('/upload-content-image', [App\Http\Controllers\Admin\BlogController::class, 'uploadContentImage']);
     });
+
+    // TEMPORARY: Cache clearing endpoint (REMOVE AFTER USE!)
+    Route::post('/clear-cache', function() {
+        try {
+            Artisan::call('config:clear');
+            Artisan::call('cache:clear');
+            Artisan::call('route:clear');
+            Artisan::call('view:clear');
+            Artisan::call('permission:cache-reset');
+            
+            return response()->json([
+                'status' => 'SUCCESS',
+                'message' => 'All caches cleared successfully',
+                'timestamp' => now()->toDateTimeString()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'ERROR',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    });
 });
 
 // Public API Routes (No Authentication Required)
