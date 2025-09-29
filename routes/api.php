@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ServiceController as ApiServiceController;
 use App\Http\Controllers\Api\ProjectController as ApiProjectController;
 use App\Http\Controllers\Api\JobController as ApiJobController;
 use App\Http\Controllers\Admin\AuthController as AuthController;
+use App\Http\Controllers\Admin\AdminSettingsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -45,13 +46,14 @@ Route::group(['prefix' => 'admin/auth'], function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::post('/refresh', [AuthController::class, 'refresh']);
         Route::get('/profile', [AuthController::class, 'profile']);
-        Route::put('/profile', [AuthController::class, 'updateProfile']);
+
+        Route::group(['prefix' => 'settings'], function () {
+            Route::post('/request-update', [AdminSettingsController::class, 'requestUpdate']);
+            Route::post('/confirm-update', [AdminSettingsController::class, 'confirmUpdate']);
+        });
+
     });
 
-    Route::group(['prefix' => 'settings'], function () {
-        Route::post('/request-update', [AdminSettingsController::class, 'requestUpdate']);
-        Route::post('/confirm-update', [AdminSettingsController::class, 'confirmUpdate']);
-    });
 });
 
 // Admin Dashboard Routes

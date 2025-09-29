@@ -33,6 +33,8 @@ class User extends Authenticatable implements JWTSubject
         'password',
         'profile_image',
         'is_active',
+        'email_verification_code',
+        'email_verification_expires_at',
     ];
 
     /**
@@ -54,6 +56,8 @@ class User extends Authenticatable implements JWTSubject
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'is_active' => 'boolean',
+        'email_verification_code' => 'integer',
+        'email_verification_expires_at' => 'datetime',
     ];
 
     /**

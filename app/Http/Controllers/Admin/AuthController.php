@@ -89,47 +89,6 @@ class AuthController extends Controller
     }
 
     /**
-     * Update the authenticated user's profile.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function updateProfile(Request $request)
-    {
-        $user = Auth::user();
-
-        $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $user->id,
-            'password' => 'sometimes|required|string|min:8|confirmed',
-            'profile_image' => 'sometimes|nullable|string'
-        ]);
-
-        if ($validator->fails()) {
-            return $this->error('Validation failed', 422);
-        }
-
-        $data = $request->only(['name', 'email', 'profile_image']);
-        
-        if ($request->has('password')) {
-            $data['password'] = Hash::make($request->password);
-        }
-
-        $user->update($data);
-        $user = $user->fresh();
-
-        return $this->success([
-            'admin' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'profile_image' => $user->profile_image,
-                'permissions' => $user->getAllPermissions()->pluck('name')->toArray()
-            ]
-        ], 'Profile updated successfully');
-    }
-
-    /**
      * Log the user out (Invalidate the token).
      *
      * @return \Illuminate\Http\JsonResponse
