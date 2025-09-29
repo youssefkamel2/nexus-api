@@ -18,6 +18,8 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             // is_active
             $table->boolean('is_active')->default(true);
+            $table->integer('email_verification_code')->nullable();
+            $table->timestamp('email_verification_expires_at')->nullable();
             $table->string('password');
             $table->string('profile_image')->nullable()->default('profile_images/default.png');
             $table->rememberToken();

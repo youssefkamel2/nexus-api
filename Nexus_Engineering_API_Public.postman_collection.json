@@ -1,0 +1,532 @@
+{
+	"info": {
+		"_postman_id": "nexus-engineering-api-public",
+		"name": "Nexus Engineering API - Public & Blogs",
+		"description": "Public API endpoints and Blog management for Nexus Engineering",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000/api",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "📝 Admin - Blog Management",
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{jwt_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"item": [
+				{
+					"name": "Get All Blogs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/blogs",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "blogs"]
+						}
+					}
+				},
+				{
+					"name": "Get Blog Options",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/blogs/options",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "blogs", "options"]
+						}
+					}
+				},
+				{
+					"name": "Get Blog Statistics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/blogs/statistics",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "blogs", "statistics"]
+						}
+					}
+				},
+				{
+					"name": "Create Blog",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"New Blog Post\",\n    \"content\": \"Blog content here\",\n    \"slug\": \"new-blog-post\",\n    \"category\": \"Technology\",\n    \"is_active\": true,\n    \"is_hero\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/blogs",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "blogs"]
+						}
+					}
+				},
+				{
+					"name": "Get Blog by Slug",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/blogs/slug/{slug}",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "blogs", "slug", "{slug}"]
+						}
+					}
+				},
+				{
+					"name": "Get Blog by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/blogs/{encodedId}",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "blogs", "{encodedId}"]
+						}
+					}
+				},
+				{
+					"name": "Update Blog",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Updated Blog Title\",\n    \"content\": \"Updated content\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/blogs/{encodedId}",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "blogs", "{encodedId}"]
+						}
+					}
+				},
+				{
+					"name": "Toggle Blog Active Status",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/blogs/{encodedId}/toggle-active",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "blogs", "{encodedId}", "toggle-active"]
+						}
+					}
+				},
+				{
+					"name": "Mark as Hero Blog",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"blog_id\": \"encoded_blog_id\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/blogs/mark-as-hero",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "blogs", "mark-as-hero"]
+						}
+					}
+				},
+				{
+					"name": "Delete Blog",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/blogs/{encodedId}",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "blogs", "{encodedId}"]
+						}
+					}
+				},
+				{
+					"name": "Bulk Delete Blogs",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"blog_ids\": [\"encoded_id_1\", \"encoded_id_2\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/blogs/bulk-delete",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "blogs", "bulk-delete"]
+						}
+					}
+				},
+				{
+					"name": "Bulk Update Status",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"blog_ids\": [\"encoded_id_1\", \"encoded_id_2\"],\n    \"is_active\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/blogs/bulk-update-status",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "blogs", "bulk-update-status"]
+						}
+					}
+				},
+				{
+					"name": "Upload Content Image",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/blogs/upload-content-image",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "blogs", "upload-content-image"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🌐 Public API - Services",
+			"item": [
+				{
+					"name": "Get All Public Services",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/public/services",
+							"host": ["{{base_url}}"],
+							"path": ["public", "services"]
+						}
+					}
+				},
+				{
+					"name": "Get Service by Slug",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/public/services/{slug}",
+							"host": ["{{base_url}}"],
+							"path": ["public", "services", "{slug}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🌐 Public API - Projects",
+			"item": [
+				{
+					"name": "Get All Public Projects",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/public/projects",
+							"host": ["{{base_url}}"],
+							"path": ["public", "projects"]
+						}
+					}
+				},
+				{
+					"name": "Get Project by Slug",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/public/projects/{slug}",
+							"host": ["{{base_url}}"],
+							"path": ["public", "projects", "{slug}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🌐 Public API - Jobs",
+			"item": [
+				{
+					"name": "Get All Public Jobs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/public/jobs?type=full-time&location=Remote&search=developer",
+							"host": ["{{base_url}}"],
+							"path": ["public", "jobs"],
+							"query": [
+								{
+									"key": "type",
+									"value": "full-time",
+									"description": "Filter by job type"
+								},
+								{
+									"key": "location",
+									"value": "Remote",
+									"description": "Filter by location"
+								},
+								{
+									"key": "search",
+									"value": "developer",
+									"description": "Search in title and location"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Job Locations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/public/jobs/locations",
+							"host": ["{{base_url}}"],
+							"path": ["public", "jobs", "locations"]
+						}
+					}
+				},
+				{
+					"name": "Get Job by Slug",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/public/jobs/{slug}",
+							"host": ["{{base_url}}"],
+							"path": ["public", "jobs", "{slug}"]
+						}
+					}
+				},
+				{
+					"name": "Apply for Job",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "John Doe",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "john@example.com",
+									"type": "text"
+								},
+								{
+									"key": "phone",
+									"value": "+1234567890",
+									"type": "text"
+								},
+								{
+									"key": "years_of_experience",
+									"value": "5",
+									"type": "text"
+								},
+								{
+									"key": "message",
+									"value": "I am interested in this position",
+									"type": "text"
+								},
+								{
+									"key": "availability",
+									"value": "Immediately",
+									"type": "text"
+								},
+								{
+									"key": "cv",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/public/jobs/{slug}/apply",
+							"host": ["{{base_url}}"],
+							"path": ["public", "jobs", "{slug}", "apply"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🌐 Public API - Blogs",
+			"item": [
+				{
+					"name": "Get All Public Blogs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/public/blogs",
+							"host": ["{{base_url}}"],
+							"path": ["public", "blogs"]
+						}
+					}
+				},
+				{
+					"name": "Get Landing Blogs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/public/blogs/landing",
+							"host": ["{{base_url}}"],
+							"path": ["public", "blogs", "landing"]
+						}
+					}
+				},
+				{
+					"name": "Get Recent Blogs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/public/blogs/recent",
+							"host": ["{{base_url}}"],
+							"path": ["public", "blogs", "recent"]
+						}
+					}
+				},
+				{
+					"name": "Get Blog Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/public/blogs/categories",
+							"host": ["{{base_url}}"],
+							"path": ["public", "blogs", "categories"]
+						}
+					}
+				},
+				{
+					"name": "Get Blog by Slug",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/public/blogs/{slug}",
+							"host": ["{{base_url}}"],
+							"path": ["public", "blogs", "{slug}"]
+						}
+					}
+				},
+				{
+					"name": "Get Related Blogs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/public/blogs/{slug}/related",
+							"host": ["{{base_url}}"],
+							"path": ["public", "blogs", "{slug}", "related"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🔧 Utility Endpoints",
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{jwt_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"item": [
+				{
+					"name": "Clear Cache (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/clear-cache",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "clear-cache"]
+						}
+					}
+				},
+				{
+					"name": "Legacy Sanctum User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user",
+							"host": ["{{base_url}}"],
+							"path": ["user"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
