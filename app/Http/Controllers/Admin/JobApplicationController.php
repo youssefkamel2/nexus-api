@@ -225,14 +225,14 @@ class JobApplicationController extends Controller
         $this->authorize('view_job_applications');
 
         try {
-            $application = JobApplication::find($encodedId);
+            $application = JobApplication::findByEncodedIdOrFail($encodedId);
 
             if ($documentType !== 'cv') {
                 return $this->error('Invalid document type', 400);
             }
 
-            if (!$application) {
-                return $this->error('Application not found', 404);
+            if (!$application->cv_path) {
+                return $this->error('CV not found', 404);
             }
             
             $filePath = $application->cv_path;
@@ -259,12 +259,8 @@ class JobApplicationController extends Controller
         $this->authorize('delete_job_applications');
 
         try {
-            $application = JobApplication::find($encodedId);
+            $application = JobApplication::findByEncodedIdOrFail($encodedId);
             
-            if (!$application) {
-                return $this->error('Application not found', 404);
-            }
-
             // Delete associated files
             if ($application->cv_path) {
                 Storage::disk('public')->delete($application->cv_path);

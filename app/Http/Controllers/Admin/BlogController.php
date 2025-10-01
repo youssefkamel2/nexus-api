@@ -87,6 +87,8 @@ class BlogController extends Controller
                 'mark_as_hero' => $blog->mark_as_hero,
                 'is_active' => $blog->is_active,
                 'tags' => $blog->tags,
+                'headings' => $blog->headings,
+                'content' => $blog->content,
                 'author' => [
                     'id' => $blog->author->encoded_id,
                     'name' => $blog->author->name,
