@@ -69,4 +69,20 @@ class StorageHelper
         
         return $synced;
     }
+
+
+    public static function deleteFromDirectory($filePath)
+    {
+        // delete also from storage/
+        $file = storage_path('app/public/' . $filePath);
+        $file2 = storage_path('app/' . $filePath);
+        if (file_exists($file)) {
+            return unlink($file);
+        }
+        if (file_exists($file2)) {
+            return unlink($file2);
+        }
+        return false;
+    }
+
 }

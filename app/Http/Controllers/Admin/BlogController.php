@@ -240,7 +240,7 @@ class BlogController extends Controller
             if ($request->hasFile('cover_photo')) {
                 // Delete old image using StorageHelper
                 if ($blog->cover_photo) {
-                    StorageHelper::deleteFromPublic($blog->cover_photo);
+                    StorageHelper::deleteFromDirectory($blog->cover_photo);
                 }
                 $data['cover_photo'] = $request->file('cover_photo')->store('blogs', 'public');
                 StorageHelper::syncToPublic($data['cover_photo']);
@@ -268,7 +268,7 @@ class BlogController extends Controller
         try {
             // Delete cover photo using StorageHelper
             if ($blog->cover_photo) {
-                StorageHelper::deleteFromPublic($blog->cover_photo);
+                StorageHelper::deleteFromDirectory($blog->cover_photo);
             }
             
             $blog->delete();
@@ -357,7 +357,7 @@ class BlogController extends Controller
             foreach ($blogs as $blog) {
                 // Delete cover photo using StorageHelper
                 if ($blog->cover_photo) {
-                    StorageHelper::deleteFromPublic($blog->cover_photo);
+                    StorageHelper::deleteFromDirectory($blog->cover_photo);
                 }
                 $blog->delete();
             }
