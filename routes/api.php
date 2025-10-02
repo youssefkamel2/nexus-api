@@ -145,6 +145,21 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api']], function () {
         Route::post('/upload-content-image', [App\Http\Controllers\Admin\BlogController::class, 'uploadContentImage']);
     });
 
+    Route::prefix('feedbacks')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\FeedbackController::class, 'index']);
+        Route::post('/', [App\Http\Controllers\Admin\FeedbackController::class, 'store']);
+        Route::put('/{id}', [App\Http\Controllers\Admin\FeedbackController::class, 'update']);
+        Route::patch('/{id}/toggle-active', [App\Http\Controllers\Admin\FeedbackController::class, 'toggleActive']);
+        Route::delete('/{id}', [App\Http\Controllers\Admin\FeedbackController::class, 'destroy']);
+    });
+
+    // settings
+    Route::group(['prefix' => 'settings'], function () {
+        Route::get('/', [App\Http\Controllers\Api\SettingsController::class, 'index']);
+        Route::put('/', [App\Http\Controllers\Api\SettingsController::class, 'update']);
+    });
+
+
     // TEMPORARY: Cache clearing endpoint (REMOVE AFTER USE!)
     Route::post('/clear-cache', function() {
         try {
@@ -197,6 +212,16 @@ Route::group(['prefix' => 'public'], function () {
         Route::get('/categories', [App\Http\Controllers\Api\BlogController::class, 'categories']);
         Route::get('/{slug}', [App\Http\Controllers\Api\BlogController::class, 'getBySlug']);
         Route::get('/{slug}/related', [App\Http\Controllers\Api\BlogController::class, 'related']);
+    });
+
+    // Home Page
+    Route::group(['prefix' => 'home'], function () {
+        Route::get('/', [App\Http\Controllers\Api\HomeController::class, 'index']);
+    });
+
+    // About Page
+    Route::group(['prefix' => 'about'], function () {
+        Route::get('/', [App\Http\Controllers\Api\AboutController::class, 'index']);
     });
 });
 
