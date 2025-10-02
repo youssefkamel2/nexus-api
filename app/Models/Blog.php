@@ -23,6 +23,8 @@ class Blog extends Model
         'headings',
     ];
 
+    protected $dates = ['created_at', 'updated_at'];
+
     public function author()
     {
         return $this->belongsTo(User::class, 'created_by');
