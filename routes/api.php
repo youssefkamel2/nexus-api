@@ -148,15 +148,15 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api']], function () {
     Route::prefix('feedbacks')->group(function () {
         Route::get('/', [App\Http\Controllers\Admin\FeedbackController::class, 'index']);
         Route::post('/', [App\Http\Controllers\Admin\FeedbackController::class, 'store']);
-        Route::put('/{id}', [App\Http\Controllers\Admin\FeedbackController::class, 'update']);
-        Route::patch('/{id}/toggle-active', [App\Http\Controllers\Admin\FeedbackController::class, 'toggleActive']);
-        Route::delete('/{id}', [App\Http\Controllers\Admin\FeedbackController::class, 'destroy']);
+        Route::put('/{encodedId}', [App\Http\Controllers\Admin\FeedbackController::class, 'update']);
+        Route::patch('/{encodedId}/toggle-active', [App\Http\Controllers\Admin\FeedbackController::class, 'toggleActive']);
+        Route::delete('/{encodedId}', [App\Http\Controllers\Admin\FeedbackController::class, 'destroy']);
     });
 
     // settings
     Route::group(['prefix' => 'settings'], function () {
-        Route::get('/', [App\Http\Controllers\Api\SettingsController::class, 'index']);
-        Route::put('/', [App\Http\Controllers\Api\SettingsController::class, 'update']);
+        Route::get('/', [App\Http\Controllers\Admin\SettingsController::class, 'index']);
+        Route::put('/', [App\Http\Controllers\Admin\SettingsController::class, 'update']);
     });
 
 
@@ -221,7 +221,7 @@ Route::group(['prefix' => 'public'], function () {
 
     // About Page
     Route::group(['prefix' => 'about'], function () {
-        Route::get('/', [App\Http\Controllers\Api\AboutController::class, 'index']);
+        Route::get('/', [App\Http\Controllers\Api\SettingsController::class, 'index']);
     });
 });
 

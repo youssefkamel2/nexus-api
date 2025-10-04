@@ -17,12 +17,14 @@ class FeedbackController extends Controller
 
     public function index()
     {
+        $this->authorize('view_feedbacks');
         $feedback = Feedback::all();
         return $this->success(FeedbackResource::collection($feedback), 'Feedbacks retrieved successfully');
     }
 
     public function store(Request $request)
     {
+        $this->authorize('create_feedbacks');
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'title' => 'required|string|max:255',
@@ -52,10 +54,10 @@ class FeedbackController extends Controller
     }
 
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $encodedId)
     {
-
-        $feedback = Feedback::find($id);
+        $this->authorize('edit_feedbacks');
+        $feedback = Feedback::findByEncodedId($encodedId);
 
         if (!$feedback) {
             return $this->error('Feedback not found', 404);
@@ -93,9 +95,10 @@ class FeedbackController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy($encodedId)
     {
-        $feedback = Feedback::find($id);
+        $this->authorize('delete_feedbacks');
+        $feedback = Feedback::findByEncodedId($encodedId);
 
         if (!$feedback) {
             return $this->error('Feedback not found', 404);
@@ -107,9 +110,10 @@ class FeedbackController extends Controller
 
     // toggle active
 
-    public function toggleActive($id)
+    public function toggleActive($encodedId)
     {
-        $feedback = Feedback::find($id);
+        $this->authorize('toggle_active_feedbacks');
+        $feedback = Feedback::findByEncodedId($encodedId);
 
         if (!$feedback) {
             return $this->error('Feedback not found', 404);

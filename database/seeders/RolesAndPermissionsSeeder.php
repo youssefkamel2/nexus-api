@@ -59,6 +59,17 @@ class RolesAndPermissionsSeeder extends Seeder
             'create_blogs',
             'edit_blogs',
             'delete_blogs',
+
+            // Settings Management
+            'view_settings',
+            'edit_settings',
+
+            // Feedback Management
+            'view_feedbacks',
+            'create_feedbacks',
+            'edit_feedbacks',
+            'delete_feedbacks',
+            'toggle_active_feedbacks',
         ];
 
         foreach ($permissions as $permission) {
@@ -101,6 +112,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_jobs',
             'view_job_applications',
             'view_blogs',
+            'view_settings',
         ]);
 
         $this->command->info('Roles and permissions seeded successfully!');
