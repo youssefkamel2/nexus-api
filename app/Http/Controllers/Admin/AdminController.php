@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Traits\ResponseTrait;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -232,6 +233,18 @@ class AdminController extends Controller
     public function assignPermissions(Request $request, $encodedId)
     {
         $this->authorize('assign_permissions');
+
+        // make sure that user cannot update it's permissions, compare after decoding the encoded id
+        $authUser = Auth::user();
+        // get the actual id for the auth user
+        $authUserID = $authUser->id;
+        // get the actual id for the user to be updated
+        $user = User::findByEncodedIdOrFail($encodedId);
+        $userID = $user->id;
+
+        if ($authUserID === $userID) {
+            return $this->error('Cannot update your own permissions', 400);
+        }
 
         $validator = Validator::make($request->all(), [
             'permissions' => 'required|array',

@@ -29,7 +29,6 @@ class RolesAndPermissionsSeeder extends Seeder
             // Permission Management
             'view_permissions',
             'assign_permissions',
-            'revoke_permissions',
             
             // Services Management
             'view_services',

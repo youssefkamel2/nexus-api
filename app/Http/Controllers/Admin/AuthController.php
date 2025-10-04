@@ -82,7 +82,8 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'profile_image' => $user->profile_image,
+                // return the profile image url
+                'profile_image' => $user->profile_image ? asset('storage/' . $user->profile_image) : null,
                 'permissions' => $user->getAllPermissions()->pluck('name')->toArray()
             ]
         ], 'Admin profile retrieved successfully');
@@ -120,7 +121,8 @@ class AuthController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
-                    'profile_image' => $user->profile_image,
+                    // return the profile image url
+                    'profile_image' => $user->profile_image ? asset('storage/' . $user->profile_image) : null,
                     'permissions' => $user->getAllPermissions()->pluck('name')->toArray()
                 ],
                 'token' => $token,
