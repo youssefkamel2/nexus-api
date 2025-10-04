@@ -17,6 +17,7 @@ class setting extends Model
         'projects',
         'clients',
         'engineers',
+        'portfolio',
         'image',
     ];
 

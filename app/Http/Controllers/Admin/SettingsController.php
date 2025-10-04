@@ -32,6 +32,7 @@ class SettingsController extends Controller
             'projects' => 'required|integer',
             'clients' => 'required|integer',
             'engineers' => 'required|integer',
+            'portfolio' => 'required|string',
             'image' => 'sometimes|image|max:6096',
         ]);
 
