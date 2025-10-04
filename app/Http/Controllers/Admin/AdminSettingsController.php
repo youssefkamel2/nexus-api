@@ -58,7 +58,7 @@ class AdminSettingsController extends Controller
 
         if (
             !$user->email_verification_code ||
-            $user->email_verification_code !== $request->code ||
+            $user->email_verification_code != $request->code ||
             !$user->email_verification_expires_at ||
             now()->gt($user->email_verification_expires_at)
         ) {
