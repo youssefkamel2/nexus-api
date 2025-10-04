@@ -21,6 +21,7 @@ class SettingsResource extends JsonResource
             'projects' => $this->projects,
             'clients' => $this->clients,
             'engineers' => $this->engineers,
+            'portfolio' => $this->portfolio,
             'image' => $this->image,
         ];
     }

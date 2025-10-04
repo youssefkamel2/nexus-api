@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('clients')->nullable();
             $table->integer('engineers')->nullable();
             $table->string('image')->nullable();
+            $table->string('portfolio')->nullable();
             $table->timestamps();
         });
     }
