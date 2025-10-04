@@ -161,7 +161,7 @@ class ServiceController extends Controller
             'title' => 'sometimes|required|string|max:255',
             'description' => 'sometimes|required|string',
             'slug' => 'sometimes|required|string|max:255|unique:services,slug,' . $service->id,
-            'cover_photo' => 'sometimes|nullable|image|max:4096',
+            'cover_photo' => 'sometimes|required|image|max:4096',
             'content1' => 'sometimes|required|string',
             'image1' => 'sometimes|nullable|image|max:4096',
             'content2' => 'sometimes|required|string',

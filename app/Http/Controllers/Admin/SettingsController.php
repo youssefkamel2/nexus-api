@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\setting;
+use App\Models\Setting;
 use App\Http\Resources\SettingsResource;
 use App\Traits\ResponseTrait;
 use Illuminate\Support\Facades\Validator;
@@ -16,13 +16,15 @@ class SettingsController extends Controller
 
     public function index()
     {
-        $settings = setting::all();
-        return $this->success(SettingsResource::collection($settings), 'Settings retrieved successfully');
+        $this->authorize('view_settings');
+        $settings = Setting::firstOrCreate(['id' => 1]);
+        return $this->success(new SettingsResource($settings), 'Settings retrieved successfully');
     }
 
     // no need for store function as settings table has only one row
     public function update(Request $request)
     {
+        $this->authorize('edit_settings');
         $validator = Validator::make($request->all(), [
             'our_mission' => 'required|string',
             'our_vision' => 'required|string',
@@ -30,7 +32,7 @@ class SettingsController extends Controller
             'projects' => 'required|integer',
             'clients' => 'required|integer',
             'engineers' => 'required|integer',
-            'image' => 'sometimes|image|max:4096',
+            'image' => 'sometimes|image|max:6096',
         ]);
 
         if ($validator->fails()) {
@@ -40,18 +42,19 @@ class SettingsController extends Controller
         try {
             $data = $validator->validated();
 
+            $setting = Setting::first();
+
             // Handle image upload using StorageHelper
             if ($request->hasFile('image')) {
                 // Delete old image using StorageHelper
-                if (setting::first()->image) {
-                    StorageHelper::deleteFromDirectory(setting::first()->image);
+                if ($setting && $setting->image) {
+                    StorageHelper::deleteFromDirectory($setting->image);
                 }
                 $data['image'] = $request->file('image')->store('settings', 'public');
                 StorageHelper::syncToPublic($data['image']);
             }
 
-            $setting = setting::first();
-            $setting->update($data);
+            $setting = Setting::updateOrCreate(['id' => 1], $data);
             return $this->success(new SettingsResource($setting), 'Setting updated successfully');
         } catch (\Exception $e) {
             return $this->error('Failed to update setting: ' . $e->getMessage(), 500);

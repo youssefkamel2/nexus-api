@@ -17,6 +17,7 @@ class ServiceResource extends JsonResource
         return [
             'id' => $this->encoded_id,
             'title' => $this->title,
+            'description' => $this->description,
             'slug' => $this->slug,
             'cover_photo' => $this->cover_photo ? asset('storage/' . $this->cover_photo) : null,
             'sections' => [
