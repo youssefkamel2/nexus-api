@@ -19,7 +19,7 @@ class FeedbackResource extends JsonResource
             'name' => $this->name,
             'title' => $this->title,
             'message' => $this->message,
-            'image' => $this->image,
+            'image' => $this->image ? env('APP_URL') . '/storage/' . $this->image : null,
             'is_active' => $this->is_active,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

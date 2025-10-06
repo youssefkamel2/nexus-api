@@ -19,19 +19,19 @@ class ServiceResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             'slug' => $this->slug,
-            'cover_photo' => $this->cover_photo ? asset('storage/' . $this->cover_photo) : null,
+            'cover_photo' => $this->cover_photo ? env('APP_URL') . '/storage/' . $this->cover_photo : null,
             'sections' => [
                 [
                     'content' => $this->content1,
-                    'image' => $this->image1 ? asset('storage/' . $this->image1) : null,
+                    'image' => $this->image1 ? env('APP_URL') . '/storage/' . $this->image1 : null,
                 ],
                 [
                     'content' => $this->content2,
-                    'image' => $this->image2 ? asset('storage/' . $this->image2) : null,
+                    'image' => $this->image2 ? env('APP_URL') . '/storage/' . $this->image2 : null,
                 ],
                 [
                     'content' => $this->content3,
-                    'image' => $this->image3 ? asset('storage/' . $this->image3) : null,
+                    'image' => $this->image3 ? env('APP_URL') . '/storage/' . $this->image3 : null,
                 ],
             ],
             'is_active' => $this->is_active,

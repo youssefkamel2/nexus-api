@@ -72,10 +72,10 @@ class Blog extends Model
         return json_decode($value, true) ?: [];
     }
 
-    public function getCoverPhotoUrlAttribute()
-    {
-        return $this->cover_photo ? asset('storage/' . $this->cover_photo) : null;
-    }
+    // public function getCoverPhotoUrlAttribute()
+    // {
+    //     return $this->cover_photo ? env('APP_URL') . '/storage/' . $this->cover_photo : null;
+    // }
 
     // Scopes
     public function scopeActive($query)

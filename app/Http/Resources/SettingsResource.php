@@ -22,7 +22,7 @@ class SettingsResource extends JsonResource
             'clients' => $this->clients,
             'engineers' => $this->engineers,
             'portfolio' => $this->portfolio,
-            'image' => $this->image,
+            'image' => $this->image ? env('APP_URL') . '/storage/' . $this->image : null,
         ];
     }
 }

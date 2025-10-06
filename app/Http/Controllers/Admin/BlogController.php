@@ -504,7 +504,7 @@ class BlogController extends Controller
         try {
             $path = $request->file('image')->store('blog-content', 'public');
             StorageHelper::syncToPublic($path);
-            $url = asset('storage/' . $path);
+            $url = env('APP_URL') . '/storage/' . $path;
             
             return $this->success(['url' => $url], 'Image uploaded successfully');
         } catch (\Exception $e) {

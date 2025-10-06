@@ -42,7 +42,7 @@ class ProjectController extends Controller
                 'title' => $project->title,
                 'slug' => $project->slug,
                 'description' => $project->description,
-                'cover_photo' => $project->cover_photo ? asset('storage/' . $project->cover_photo) : null,
+                'cover_photo' => $project->cover_photo ? env('APP_URL') . '/storage/' . $project->cover_photo : null,
                 'is_active' => $project->is_active,
                 'author' => [
                     'id' => $project->author->encoded_id,

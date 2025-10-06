@@ -40,7 +40,7 @@ class ServiceController extends Controller
                 'title' => $service->title,
                 'description' => $service->description,
                 'slug' => $service->slug,
-                'cover_photo' => $service->cover_photo ? asset('storage/' . $service->cover_photo) : null,
+                'cover_photo' => $service->cover_photo ? env('APP_URL') . '/storage/' . $service->cover_photo : null,
                 'is_active' => $service->is_active,
                 'author' => [
                     'id' => $service->author->encoded_id,
