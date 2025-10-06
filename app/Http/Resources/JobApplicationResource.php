@@ -32,7 +32,7 @@ class JobApplicationResource extends JsonResource
                 'availability' => $this->availability,
             ],
             'documents' => [
-                'cv' => $this->cv_path ? asset('storage/' . $this->cv_path) : null,
+                'cv' => $this->cv_path ? env('APP_URL') . '/storage/' . $this->cv_path : null,
             ],
             'status' => $this->status,
             'status_color' => $this->status_color,

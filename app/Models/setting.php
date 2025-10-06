@@ -25,9 +25,9 @@ class setting extends Model
         'image' => 'string',
     ];
 
-    public function getImageAttribute($value)
-    {
-        return asset('storage/' . $value);
-    }
+    // public function getImageAttribute($value)
+    // {
+    //     return $value ? env('APP_URL') . '/storage/' . $value : null;
+    // }
 
 }

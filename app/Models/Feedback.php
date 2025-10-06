@@ -22,10 +22,10 @@ class Feedback extends Model
         'is_active' => 'boolean',
     ];
 
-    public function getImageAttribute($value)
-    {
-        return asset('storage/' . $value);
-    }
+    // public function getImageAttribute($value)
+    // {
+    //     return $value ? env('APP_URL') . '/storage/' . $value : null;
+    // }
 
     /**
      * Scope a query to only include active feedback.

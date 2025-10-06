@@ -13,7 +13,7 @@ class BlogResource extends JsonResource
             'id' => $this->encoded_id,
             'title' => $this->title,
             'slug' => $this->slug,
-            'cover_photo' => $this->cover_photo_url,
+            'cover_photo' => $this->cover_photo ? env('APP_URL') . '/storage/' . $this->cover_photo : null,
             'category' => $this->category,
             'content' => $this->content,
             'mark_as_hero' => $this->mark_as_hero,
@@ -25,7 +25,7 @@ class BlogResource extends JsonResource
                 return [
                     'name' => $this->author->name,
                     'bio' => $this->author->bio,
-                    'profile_photo' => $this->author->profile_image ?  asset('storage/' . $this->author->profile_image) : null,
+                    'profile_photo' => $this->author->profile_image ? env('APP_URL') . '/storage/' . $this->author->profile_image : null,
                 ];
             }),
             'created_at' => $this->created_at,

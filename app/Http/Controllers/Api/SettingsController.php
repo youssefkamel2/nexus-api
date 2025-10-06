@@ -14,7 +14,7 @@ class SettingsController extends Controller
 
     public function index()
     {
-        $settings = Setting::all();
-        return $this->success(SettingsResource::collection($settings), 'Settings retrieved successfully');
+        $settings = Setting::first();
+        return $this->success(new SettingsResource($settings), 'Settings retrieved successfully');
     }
 }

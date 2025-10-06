@@ -26,7 +26,7 @@ class BlogMediaController extends Controller
             $file = $request->file('video');
             $filename = 'video_' . Str::random(20) . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('blog-videos', $filename, 'public');
-            $url = asset('storage/' . $path);
+            $url = env('APP_URL') . '/storage/' . $path;
 
             return $this->success([
                 'url' => $url,
