@@ -96,6 +96,7 @@ class ServiceController extends Controller
      */
     public function store(Request $request)
     {
+
         $this->authorize('create_services');
 
         $validator = Validator::make($request->all(), [
@@ -135,6 +136,7 @@ class ServiceController extends Controller
                     StorageHelper::syncToPublic($data["image{$i}"]);
                 }
             }
+
 
             $service = Service::create($data);
 
@@ -262,6 +264,110 @@ class ServiceController extends Controller
             ], "Service {$status} successfully");
         } catch (\Exception $e) {
             return $this->error('Failed to toggle service status: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Bulk delete services
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function bulkDelete(Request $request)
+    {
+        $this->authorize('delete_services');
+
+        $validator = Validator::make($request->all(), [
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->first(), 422);
+        }
+
+        try {
+            $deletedCount = 0;
+            $errors = [];
+
+            foreach ($request->ids as $encodedId) {
+                try {
+                    $service = Service::findByEncodedId($encodedId);
+                    if ($service) {
+                        // Delete images if exist
+                        if ($service->cover_photo) {
+                            StorageHelper::deleteFromDirectory($service->cover_photo);
+                        }
+                        if ($service->image1) {
+                            StorageHelper::deleteFromDirectory($service->image1);
+                        }
+                        if ($service->image2) {
+                            StorageHelper::deleteFromDirectory($service->image2);
+                        }
+                        if ($service->image3) {
+                            StorageHelper::deleteFromDirectory($service->image3);
+                        }
+                        $service->delete();
+                        $deletedCount++;
+                    }
+                } catch (\Exception $e) {
+                    $errors[] = "Failed to delete service {$encodedId}: " . $e->getMessage();
+                }
+            }
+
+            return $this->success([
+                'deleted_count' => $deletedCount,
+                'errors' => $errors
+            ], "{$deletedCount} service(s) deleted successfully");
+        } catch (\Exception $e) {
+            return $this->error('Failed to delete services: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Bulk update service status
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function bulkUpdateStatus(Request $request)
+    {
+        $this->authorize('edit_services');
+
+        $validator = Validator::make($request->all(), [
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'required|string',
+            'status' => 'required|boolean'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->first(), 422);
+        }
+
+        try {
+            $updatedCount = 0;
+            $errors = [];
+
+            foreach ($request->ids as $encodedId) {
+                try {
+                    $service = Service::findByEncodedId($encodedId);
+                    if ($service) {
+                        $service->is_active = $request->status;
+                        $service->save();
+                        $updatedCount++;
+                    }
+                } catch (\Exception $e) {
+                    $errors[] = "Failed to update service {$encodedId}: " . $e->getMessage();
+                }
+            }
+
+            $statusText = $request->status ? 'activated' : 'deactivated';
+            return $this->success([
+                'updated_count' => $updatedCount,
+                'errors' => $errors
+            ], "{$updatedCount} service(s) {$statusText} successfully");
+        } catch (\Exception $e) {
+            return $this->error('Failed to update service status: ' . $e->getMessage(), 500);
         }
     }
 }

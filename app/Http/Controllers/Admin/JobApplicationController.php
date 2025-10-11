@@ -278,6 +278,64 @@ class JobApplicationController extends Controller
     }
 
     /**
+     * Bulk delete job applications
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function bulkDelete(Request $request)
+    {
+        $this->authorize('delete_job_applications');
+
+        $validator = Validator::make($request->all(), [
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->first(), 422);
+        }
+
+        try {
+            $deletedCount = 0;
+            $errors = [];
+            $jobsToUpdate = [];
+
+            foreach ($request->ids as $encodedId) {
+                try {
+                    $application = JobApplication::findByEncodedId($encodedId);
+                    if ($application) {
+                        // Delete associated CV file
+                        if ($application->cv_path) {
+                            Storage::disk('public')->delete($application->cv_path);
+                        }
+                        
+                        // Track job for count update
+                        $jobsToUpdate[$application->job_id] = $application->job;
+                        
+                        $application->delete();
+                        $deletedCount++;
+                    }
+                } catch (\Exception $e) {
+                    $errors[] = "Failed to delete application {$encodedId}: " . $e->getMessage();
+                }
+            }
+
+            // Update applications count for affected jobs
+            foreach ($jobsToUpdate as $job) {
+                $job->updateApplicationsCount();
+            }
+
+            return $this->success([
+                'deleted_count' => $deletedCount,
+                'errors' => $errors
+            ], "{$deletedCount} application(s) deleted successfully");
+        } catch (\Exception $e) {
+            return $this->error('Failed to delete applications: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
      * Get application status options
      *
      * @return \Illuminate\Http\JsonResponse

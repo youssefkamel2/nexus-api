@@ -12,6 +12,8 @@ use App\Http\Controllers\Api\JobController as ApiJobController;
 use App\Http\Controllers\Admin\AuthController as AuthController;
 use App\Http\Controllers\Admin\AdminSettingsController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\disciplineController as AdminDisciplineController;
+use App\Http\Controllers\Api\disciplineController as ApiDisciplineController;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,6 +69,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api']], function () {
         Route::put('/{encodedId}', [AdminController::class, 'updateUser']);
         Route::delete('/{encodedId}', [AdminController::class, 'deleteUser']);
         Route::patch('/{encodedId}/toggle-active', [AdminController::class, 'toggleActive']);
+        
+        // Bulk operations
+        Route::post('/bulk/delete', [AdminController::class, 'bulkDelete']);
+        Route::post('/bulk/update-status', [AdminController::class, 'bulkUpdateStatus']);
     });
     
     // Permission Management
@@ -84,6 +90,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api']], function () {
         Route::post('/{encodedId}', [AdminServiceController::class, 'update']);
         Route::delete('/{encodedId}', [AdminServiceController::class, 'destroy']);
         Route::patch('/{encodedId}/toggle-active', [AdminServiceController::class, 'toggleActive']);
+        
+        // Bulk operations
+        Route::post('/bulk/delete', [AdminServiceController::class, 'bulkDelete']);
+        Route::post('/bulk/update-status', [AdminServiceController::class, 'bulkUpdateStatus']);
     });
 
     // Projects Management
@@ -95,6 +105,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api']], function () {
         Route::post('/{encodedId}', [AdminProjectController::class, 'update']);
         Route::delete('/{encodedId}', [AdminProjectController::class, 'destroy']);
         Route::patch('/{encodedId}/toggle-active', [AdminProjectController::class, 'toggleActive']);
+        
+        // Bulk operations
+        Route::post('/bulk/delete', [AdminProjectController::class, 'bulkDelete']);
+        Route::post('/bulk/update-status', [AdminProjectController::class, 'bulkUpdateStatus']);
     });
 
     // Jobs Management
@@ -108,6 +122,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api']], function () {
         Route::post('/{encodedId}', [AdminJobController::class, 'update']);
         Route::delete('/{encodedId}', [AdminJobController::class, 'destroy']);
         Route::patch('/{encodedId}/toggle-active', [AdminJobController::class, 'toggleActive']);
+        
+        // Bulk operations
+        Route::post('/bulk/delete', [AdminJobController::class, 'bulkDelete']);
+        Route::post('/bulk/update-status', [AdminJobController::class, 'bulkUpdateStatus']);
     });
 
     // Job Applications Management
@@ -121,6 +139,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api']], function () {
         Route::patch('/{encodedId}/notes', [AdminJobApplicationController::class, 'addNotes']);
         Route::get('/{encodedId}/download/cv', [AdminJobApplicationController::class, 'downloadDocument']);
         Route::delete('/{encodedId}', [AdminJobApplicationController::class, 'destroy']);
+        
+        // Bulk operations
+        Route::post('/bulk/delete', [AdminJobApplicationController::class, 'bulkDelete']);
     });
 
     // Blog Management
@@ -137,8 +158,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api']], function () {
         Route::delete('/{encodedId}', [App\Http\Controllers\Admin\BlogController::class, 'destroy']);
         
         // Bulk operations
-        Route::post('/bulk-delete', [App\Http\Controllers\Admin\BlogController::class, 'bulkDelete']);
-        Route::post('/bulk-update-status', [App\Http\Controllers\Admin\BlogController::class, 'bulkUpdateStatus']);
+        Route::post('/bulk/delete', [App\Http\Controllers\Admin\BlogController::class, 'bulkDelete']);
+        Route::post('/bulk/update-status', [App\Http\Controllers\Admin\BlogController::class, 'bulkUpdateStatus']);
         Route::post('/bulk-update-category', [App\Http\Controllers\Admin\BlogController::class, 'bulkUpdateCategory']);
         
         // Content image upload
@@ -151,12 +172,25 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api']], function () {
         Route::put('/{encodedId}', [App\Http\Controllers\Admin\FeedbackController::class, 'update']);
         Route::patch('/{encodedId}/toggle-active', [App\Http\Controllers\Admin\FeedbackController::class, 'toggleActive']);
         Route::delete('/{encodedId}', [App\Http\Controllers\Admin\FeedbackController::class, 'destroy']);
+        
+        // Bulk operations
+        Route::post('/bulk/delete', [App\Http\Controllers\Admin\FeedbackController::class, 'bulkDelete']);
+        Route::post('/bulk/update-status', [App\Http\Controllers\Admin\FeedbackController::class, 'bulkUpdateStatus']);
     });
 
     // settings
     Route::group(['prefix' => 'settings'], function () {
         Route::get('/', [App\Http\Controllers\Admin\SettingsController::class, 'index']);
         Route::put('/', [App\Http\Controllers\Admin\SettingsController::class, 'update']);
+    });
+
+    // disciplines
+    Route::group(['prefix' => 'disciplines'], function () {
+        Route::get('/', [AdminDisciplineController::class, 'index']);
+        Route::post('/', [AdminDisciplineController::class, 'store']);
+        Route::put('/{encodedId}', [AdminDisciplineController::class, 'update']);
+        Route::delete('/{encodedId}', [AdminDisciplineController::class, 'destroy']);
+        Route::patch('/{encodedId}/toggle-active', [AdminDisciplineController::class, 'toggleActive']);
     });
 
 
@@ -222,6 +256,11 @@ Route::group(['prefix' => 'public'], function () {
     // About Page
     Route::group(['prefix' => 'about'], function () {
         Route::get('/', [App\Http\Controllers\Api\SettingsController::class, 'index']);
+    });
+
+    // disciplines
+    Route::group(['prefix' => 'disciplines'], function () {
+        Route::get('/', [ApiDisciplineController::class, 'index']);
     });
 });
 
