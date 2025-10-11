@@ -294,4 +294,108 @@ class ProjectController extends Controller
             return $this->error('Failed to toggle project status: ' . $e->getMessage(), 500);
         }
     }
+
+    /**
+     * Bulk delete projects
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function bulkDelete(Request $request)
+    {
+        $this->authorize('delete_projects');
+
+        $validator = Validator::make($request->all(), [
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->first(), 422);
+        }
+
+        try {
+            $deletedCount = 0;
+            $errors = [];
+
+            foreach ($request->ids as $encodedId) {
+                try {
+                    $project = Project::findByEncodedId($encodedId);
+                    if ($project) {
+                        // Delete images if exist
+                        if ($project->cover_photo) {
+                            StorageHelper::deleteFromDirectory($project->cover_photo);
+                        }
+                        if ($project->image1) {
+                            StorageHelper::deleteFromDirectory($project->image1);
+                        }
+                        if ($project->image2) {
+                            StorageHelper::deleteFromDirectory($project->image2);
+                        }
+                        if ($project->image3) {
+                            StorageHelper::deleteFromDirectory($project->image3);
+                        }
+                        $project->delete();
+                        $deletedCount++;
+                    }
+                } catch (\Exception $e) {
+                    $errors[] = "Failed to delete project {$encodedId}: " . $e->getMessage();
+                }
+            }
+
+            return $this->success([
+                'deleted_count' => $deletedCount,
+                'errors' => $errors
+            ], "{$deletedCount} project(s) deleted successfully");
+        } catch (\Exception $e) {
+            return $this->error('Failed to delete projects: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Bulk update project status
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function bulkUpdateStatus(Request $request)
+    {
+        $this->authorize('edit_projects');
+
+        $validator = Validator::make($request->all(), [
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'required|string',
+            'status' => 'required|boolean'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->first(), 422);
+        }
+
+        try {
+            $updatedCount = 0;
+            $errors = [];
+
+            foreach ($request->ids as $encodedId) {
+                try {
+                    $project = Project::findByEncodedId($encodedId);
+                    if ($project) {
+                        $project->is_active = $request->status;
+                        $project->save();
+                        $updatedCount++;
+                    }
+                } catch (\Exception $e) {
+                    $errors[] = "Failed to update project {$encodedId}: " . $e->getMessage();
+                }
+            }
+
+            $statusText = $request->status ? 'activated' : 'deactivated';
+            return $this->success([
+                'updated_count' => $updatedCount,
+                'errors' => $errors
+            ], "{$updatedCount} project(s) {$statusText} successfully");
+        } catch (\Exception $e) {
+            return $this->error('Failed to update project status: ' . $e->getMessage(), 500);
+        }
+    }
 }

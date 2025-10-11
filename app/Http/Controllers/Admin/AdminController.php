@@ -297,4 +297,107 @@ class AdminController extends Controller
         }
     }
 
+    /**
+     * Bulk delete admins
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function bulkDelete(Request $request)
+    {
+        $this->authorize('delete_admins');
+
+        $validator = Validator::make($request->all(), [
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->first(), 422);
+        }
+
+        try {
+            $deletedCount = 0;
+            $errors = [];
+            $currentUserId = Auth::id();
+
+            foreach ($request->ids as $encodedId) {
+                try {
+                    $user = User::findByEncodedId($encodedId);
+                    if ($user) {
+                        // Prevent deleting yourself
+                        if ($user->id === $currentUserId) {
+                            $errors[] = "Cannot delete your own account";
+                            continue;
+                        }
+                        $user->delete();
+                        $deletedCount++;
+                    }
+                } catch (\Exception $e) {
+                    $errors[] = "Failed to delete admin {$encodedId}: " . $e->getMessage();
+                }
+            }
+
+            return $this->success([
+                'deleted_count' => $deletedCount,
+                'errors' => $errors
+            ], "{$deletedCount} admin(s) deleted successfully");
+        } catch (\Exception $e) {
+            return $this->error('Failed to delete admins: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Bulk update admin status
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function bulkUpdateStatus(Request $request)
+    {
+        $this->authorize('edit_admins');
+
+        $validator = Validator::make($request->all(), [
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'required|string',
+            'status' => 'required|boolean'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->first(), 422);
+        }
+
+        try {
+            $updatedCount = 0;
+            $errors = [];
+            $currentUserId = Auth::id();
+
+            foreach ($request->ids as $encodedId) {
+                try {
+                    $user = User::findByEncodedId($encodedId);
+                    if ($user) {
+                        // Prevent deactivating yourself
+                        if ($user->id === $currentUserId && !$request->status) {
+                            $errors[] = "Cannot deactivate your own account";
+                            continue;
+                        }
+                        $user->is_active = $request->status;
+                        $user->save();
+                        $updatedCount++;
+                    }
+                } catch (\Exception $e) {
+                    $errors[] = "Failed to update admin {$encodedId}: " . $e->getMessage();
+                }
+            }
+
+            $statusText = $request->status ? 'activated' : 'deactivated';
+            return $this->success([
+                'updated_count' => $updatedCount,
+                'errors' => $errors
+            ], "{$updatedCount} admin(s) {$statusText} successfully");
+        } catch (\Exception $e) {
+            return $this->error('Failed to update admin status: ' . $e->getMessage(), 500);
+        }
+    }
+
 }

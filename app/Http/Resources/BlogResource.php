@@ -25,7 +25,7 @@ class BlogResource extends JsonResource
                 return [
                     'name' => $this->author->name,
                     'bio' => $this->author->bio,
-                    'profile_photo' => $this->author->profile_image ? env('APP_URL') . '/storage/' . $this->author->profile_image : null,
+                    'profile_image' => $this->author->profile_image ? env('APP_URL') . '/storage/' . $this->author->profile_image : env('APP_URL') . '/storage/profile_images/default.png',
                 ];
             }),
             'created_at' => $this->created_at,

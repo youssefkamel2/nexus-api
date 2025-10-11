@@ -82,8 +82,9 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                // return the profile image url
-                'profile_image' => $user->profile_image ? env('APP_URL') . '/storage/' . $user->profile_image : null,
+                'bio' => $user->bio,
+                // return the profile image url, return default image if no image
+                'profile_image' => $user->profile_image ? env('APP_URL') . '/storage/' . $user->profile_image : env('APP_URL') . '/storage/profile_images/default.png',
                 'permissions' => $user->getAllPermissions()->pluck('name')->toArray()
             ]
         ], 'Admin profile retrieved successfully');
@@ -121,8 +122,9 @@ class AuthController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
-                    // return the profile image url
-                    'profile_image' => $user->profile_image ? env('APP_URL') . '/storage/' . $user->profile_image : null,
+                    'bio' => $user->bio,
+                    // return the profile image url, return default image if no image
+                    'profile_image' => $user->profile_image ? env('APP_URL') . '/storage/' . $user->profile_image : env('APP_URL') . '/storage/profile_images/default.png',
                     'permissions' => $user->getAllPermissions()->pluck('name')->toArray()
                 ],
                 'token' => $token,

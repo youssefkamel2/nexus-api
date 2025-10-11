@@ -20,6 +20,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->integer('email_verification_code')->nullable();
             $table->timestamp('email_verification_expires_at')->nullable();
+            $table->string('bio')->nullable();
             $table->string('password');
             $table->string('profile_image')->nullable()->default('profile_images/default.png');
             $table->rememberToken();

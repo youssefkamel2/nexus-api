@@ -299,6 +299,101 @@ class BlogController extends Controller
     }
 
     /**
+     * Bulk delete blogs
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function bulkDelete(Request $request)
+    {
+        $this->authorize('delete_blogs');
+
+        $validator = Validator::make($request->all(), [
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->first(), 422);
+        }
+
+        try {
+            $deletedCount = 0;
+            $errors = [];
+
+            foreach ($request->ids as $encodedId) {
+                try {
+                    $blog = Blog::findByEncodedId($encodedId);
+                    if ($blog) {
+                        // Delete cover photo if exists
+                        if ($blog->cover_photo) {
+                            StorageHelper::deleteFromDirectory($blog->cover_photo);
+                        }
+                        $blog->delete();
+                        $deletedCount++;
+                    }
+                } catch (\Exception $e) {
+                    $errors[] = "Failed to delete blog {$encodedId}: " . $e->getMessage();
+                }
+            }
+
+            return $this->success([
+                'deleted_count' => $deletedCount,
+                'errors' => $errors
+            ], "{$deletedCount} blog(s) deleted successfully");
+        } catch (\Exception $e) {
+            return $this->error('Failed to delete blogs: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Bulk update blog status
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function bulkUpdateStatus(Request $request)
+    {
+        $this->authorize('edit_blogs');
+
+        $validator = Validator::make($request->all(), [
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'required|string',
+            'status' => 'required|boolean'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->first(), 422);
+        }
+
+        try {
+            $updatedCount = 0;
+            $errors = [];
+
+            foreach ($request->ids as $encodedId) {
+                try {
+                    $blog = Blog::findByEncodedId($encodedId);
+                    if ($blog) {
+                        $blog->is_active = $request->status;
+                        $blog->save();
+                        $updatedCount++;
+                    }
+                } catch (\Exception $e) {
+                    $errors[] = "Failed to update blog {$encodedId}: " . $e->getMessage();
+                }
+            }
+
+            $statusText = $request->status ? 'activated' : 'deactivated';
+            return $this->success([
+                'updated_count' => $updatedCount,
+                'errors' => $errors
+            ], "{$updatedCount} blog(s) {$statusText} successfully");
+        } catch (\Exception $e) {
+            return $this->error('Failed to update blog status: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
      * Get blog options for admin forms
      *
      * @return \Illuminate\Http\JsonResponse
@@ -329,71 +424,6 @@ class BlogController extends Controller
             return $this->success($options, 'Blog options retrieved successfully');
         } catch (\Exception $e) {
             return $this->error('Failed to retrieve options: ' . $e->getMessage(), 500);
-        }
-    }
-
-    /**
-     * Bulk delete blogs
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function bulkDelete(Request $request)
-    {
-        $this->authorize('delete_blogs');
-
-        $validator = Validator::make($request->all(), [
-            'ids' => 'required|array',
-            'ids.*' => 'integer|exists:blogs,id',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->error($validator->errors()->first(), 422);
-        }
-
-        try {
-            $blogs = Blog::whereIn('id', $request->ids)->get();
-            
-            foreach ($blogs as $blog) {
-                // Delete cover photo using StorageHelper
-                if ($blog->cover_photo) {
-                    StorageHelper::deleteFromDirectory($blog->cover_photo);
-                }
-                $blog->delete();
-            }
-
-            return $this->success(null, count($request->ids) . ' blogs deleted successfully');
-        } catch (\Exception $e) {
-            return $this->error('Failed to delete blogs: ' . $e->getMessage(), 500);
-        }
-    }
-
-    /**
-     * Bulk update blog status
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function bulkUpdateStatus(Request $request)
-    {
-        $this->authorize('edit_blogs');
-
-        $validator = Validator::make($request->all(), [
-            'ids' => 'required|array',
-            'ids.*' => 'integer|exists:blogs,id',
-            'status' => 'required|boolean',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->error($validator->errors()->first(), 422);
-        }
-
-        try {
-            $count = Blog::whereIn('id', $request->ids)->update(['is_active' => $request->status]);
-
-            return $this->success(null, 'Status updated for ' . $count . ' blogs');
-        } catch (\Exception $e) {
-            return $this->error('Failed to update blog statuses: ' . $e->getMessage(), 500);
         }
     }
 

@@ -49,6 +49,7 @@ class AdminSettingsController extends Controller
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|email|unique:users,email,' . $user->id,
             'password' => 'sometimes|string|min:8',
+            'bio' => 'sometimes|string',
             'profile_image' => 'sometimes|file|image|max:2048',
         ]);
 
@@ -79,7 +80,9 @@ class AdminSettingsController extends Controller
             StorageHelper::syncToPublic($path);
             $user->profile_image = $path;
         }
-
+        if ($request->has('bio')) {
+            $user->bio = $request->bio;
+        }
         $user->email_verification_code = null;
         $user->email_verification_expires_at = null;
         $user->save();
@@ -88,6 +91,7 @@ class AdminSettingsController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
+            'bio' => $user->bio,
             'profile_image' => $user->profile_image ? env('APP_URL') . '/storage/' . $user->profile_image : null,
             'status' => $user->status,
             'created_at' => $user->created_at,

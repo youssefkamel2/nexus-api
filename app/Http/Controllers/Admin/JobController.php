@@ -239,6 +239,97 @@ class JobController extends Controller
     }
 
     /**
+     * Bulk delete jobs
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function bulkDelete(Request $request)
+    {
+        $this->authorize('delete_jobs');
+
+        $validator = Validator::make($request->all(), [
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->first(), 422);
+        }
+
+        try {
+            $deletedCount = 0;
+            $errors = [];
+
+            foreach ($request->ids as $encodedId) {
+                try {
+                    $job = Job::findByEncodedId($encodedId);
+                    if ($job) {
+                        $job->delete();
+                        $deletedCount++;
+                    }
+                } catch (\Exception $e) {
+                    $errors[] = "Failed to delete job {$encodedId}: " . $e->getMessage();
+                }
+            }
+
+            return $this->success([
+                'deleted_count' => $deletedCount,
+                'errors' => $errors
+            ], "{$deletedCount} job(s) deleted successfully");
+        } catch (\Exception $e) {
+            return $this->error('Failed to delete jobs: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Bulk update job status
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function bulkUpdateStatus(Request $request)
+    {
+        $this->authorize('edit_jobs');
+
+        $validator = Validator::make($request->all(), [
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'required|string',
+            'status' => 'required|boolean'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->first(), 422);
+        }
+
+        try {
+            $updatedCount = 0;
+            $errors = [];
+
+            foreach ($request->ids as $encodedId) {
+                try {
+                    $job = Job::findByEncodedId($encodedId);
+                    if ($job) {
+                        $job->is_active = $request->status;
+                        $job->save();
+                        $updatedCount++;
+                    }
+                } catch (\Exception $e) {
+                    $errors[] = "Failed to update job {$encodedId}: " . $e->getMessage();
+                }
+            }
+
+            $statusText = $request->status ? 'activated' : 'deactivated';
+            return $this->success([
+                'updated_count' => $updatedCount,
+                'errors' => $errors
+            ], "{$updatedCount} job(s) {$statusText} successfully");
+        } catch (\Exception $e) {
+            return $this->error('Failed to update job status: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
      * Get job options for form dropdowns
      *
      * @return \Illuminate\Http\JsonResponse
