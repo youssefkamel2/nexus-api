@@ -62,4 +62,13 @@ class Project extends Model
     {
         return $query->where('slug', $slug);
     }
+
+    /**
+     * Get the disciplines associated with this project.
+     */
+    public function disciplines()
+    {
+        return $this->belongsToMany(Discipline::class, 'discipline_project', 'project_id', 'discipline_id')
+                    ->withTimestamps();
+    }
 }

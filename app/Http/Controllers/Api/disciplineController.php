@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Traits\ResponseTrait;
-use App\Models\discipline;
+use App\Models\Discipline;
 
 class disciplineController extends Controller
 {
@@ -13,7 +13,7 @@ class disciplineController extends Controller
 
     public function index()
     {
-        $disciplines = discipline::where('is_active', true)->get();
+        $disciplines = Discipline::where('is_active', true)->get();
         return $this->success($disciplines, 'Disciplines retrieved successfully');
     }
 }

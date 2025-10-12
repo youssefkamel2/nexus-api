@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
+use App\Models\Discipline;
 use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -36,7 +37,7 @@ class ProjectController extends Controller
     {
         $this->authorize('view_projects');
 
-        $projects = Project::with('author')->get()->map(function ($project) {
+        $projects = Project::with(['author', 'disciplines'])->get()->map(function ($project) {
             return [
                 'id' => $project->encoded_id,
                 'title' => $project->title,
@@ -44,6 +45,12 @@ class ProjectController extends Controller
                 'description' => $project->description,
                 'cover_photo' => $project->cover_photo ? env('APP_URL') . '/storage/' . $project->cover_photo : null,
                 'is_active' => $project->is_active,
+                'disciplines' => $project->disciplines->map(function ($discipline) {
+                    return [
+                        'id' => $discipline->id,
+                        'title' => $discipline->title,
+                    ];
+                }),
                 'author' => [
                     'id' => $project->author->encoded_id,
                     'name' => $project->author->name,
@@ -68,7 +75,7 @@ class ProjectController extends Controller
         $this->authorize('view_projects');
 
         $project = Project::findByEncodedIdOrFail($encodedId);
-        return $this->success(new ProjectResource($project->load('author')), 'Project retrieved successfully');
+        return $this->success(new ProjectResource($project->load(['author', 'disciplines'])), 'Project retrieved successfully');
     }
 
     /**
@@ -81,7 +88,7 @@ class ProjectController extends Controller
     {
         $this->authorize('view_projects');
 
-        $project = Project::with('author')->bySlug($slug)->first();
+        $project = Project::with(['author', 'disciplines'])->bySlug($slug)->first();
 
         if (!$project) {
             return $this->error('Project not found', 404);
@@ -104,7 +111,7 @@ class ProjectController extends Controller
             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:projects,slug',
             'description' => 'required|string',
-            'cover_photo' => 'sometimes|nullable|image|max:4096',
+            'cover_photo' => 'required|image|max:4096',
             'content1' => 'sometimes|nullable|string',
             'image1' => 'sometimes|nullable|image|max:4096',
             'content2' => 'sometimes|nullable|string',
@@ -112,6 +119,10 @@ class ProjectController extends Controller
             'content3' => 'sometimes|nullable|string',
             'image3' => 'sometimes|nullable|image|max:4096',
             'is_active' => 'sometimes|boolean',
+            'discipline_ids' => 'sometimes|array',
+            'discipline_ids.*' => 'required|integer|exists:disciplines,id',
+            'disciplines' => 'sometimes|array',
+            'disciplines.*' => 'required|integer|exists:disciplines,id',
         ]);
 
         if ($validator->fails()) {
@@ -148,7 +159,17 @@ class ProjectController extends Controller
             }
 
             $project = Project::create($data);
-            return $this->success(new ProjectResource($project->load('author')), 'Project created successfully', 201);
+
+            // Sync disciplines if provided (accepts both 'discipline_ids' and 'disciplines')
+            $disciplineField = $request->has('discipline_ids') ? 'discipline_ids' : ($request->has('disciplines') ? 'disciplines' : null);
+            if ($disciplineField) {
+                $disciplineIds = array_filter($request->input($disciplineField), function($id) {
+                    return is_numeric($id) && Discipline::where('id', $id)->exists();
+                });
+                $project->disciplines()->sync($disciplineIds);
+            }
+
+            return $this->success(new ProjectResource($project->load(['author', 'disciplines'])), 'Project created successfully', 201);
         } catch (\Exception $e) {
             return $this->error('Failed to create project: ' . $e->getMessage(), 500);
         }
@@ -179,6 +200,10 @@ class ProjectController extends Controller
             'content3' => 'sometimes|nullable|string',
             'image3' => 'sometimes|nullable|image|max:4096',
             'is_active' => 'sometimes|boolean',
+            'discipline_ids' => 'sometimes|array',
+            'discipline_ids.*' => 'required|integer|exists:disciplines,id',
+            'disciplines' => 'sometimes|array',
+            'disciplines.*' => 'required|integer|exists:disciplines,id',
         ]);
 
         if ($validator->fails()) {
@@ -228,7 +253,17 @@ class ProjectController extends Controller
             }
 
             $project->update($data);
-            return $this->success(new ProjectResource($project->fresh()->load('author')), 'Project updated successfully');
+
+            // Sync disciplines if provided (accepts both 'discipline_ids' and 'disciplines')
+            $disciplineField = $request->has('discipline_ids') ? 'discipline_ids' : ($request->has('disciplines') ? 'disciplines' : null);
+            if ($disciplineField) {
+                $disciplineIds = array_filter($request->input($disciplineField), function($id) {
+                    return is_numeric($id) && Discipline::where('id', $id)->exists();
+                });
+                $project->disciplines()->sync($disciplineIds);
+            }
+
+            return $this->success(new ProjectResource($project->fresh()->load(['author', 'disciplines'])), 'Project updated successfully');
         } catch (\Exception $e) {
             return $this->error('Failed to update project: ' . $e->getMessage(), 500);
         }

@@ -62,4 +62,13 @@ class Service extends Model
     {
         return $query->where('slug', $slug);
     }
+
+    /**
+     * Get the disciplines associated with this service.
+     */
+    public function disciplines()
+    {
+        return $this->belongsToMany(Discipline::class, 'discipline_service', 'service_id', 'discipline_id')
+                    ->withTimestamps();
+    }
 }

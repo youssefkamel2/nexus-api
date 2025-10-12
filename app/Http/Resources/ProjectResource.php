@@ -36,6 +36,7 @@ class ProjectResource extends JsonResource
                 ],
             ],
             'is_active' => $this->is_active,
+            'disciplines' => $this->disciplines,
             'author' => [
                 'id' => $this->author->encoded_id,
                 'name' => $this->author->name,
