@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\discipline;
+use App\Models\Discipline;
 use App\Models\User;
 use App\Traits\ResponseTrait;
 use Illuminate\Support\Facades\Validator;
@@ -24,9 +24,9 @@ class disciplineController extends Controller
     {
         $this->authorize('view_disciplines');
 
-        $disciplines = discipline::with('createdBy')->get()->map(function ($discipline) {
+        $disciplines = Discipline::with('createdBy')->get()->map(function ($discipline) {
             return [
-                'id' => $discipline->encoded_id,
+                'id' => $discipline->id,
                 'title' => $discipline->title,
                 'is_active' => $discipline->is_active,
                 'created_by' => $discipline->createdBy->name,
@@ -56,15 +56,15 @@ class disciplineController extends Controller
         $data['created_by'] = auth()->id();
 
 
-        $discipline = discipline::create($data);
+        $discipline = Discipline::create($data);
         return $this->success($discipline, 'Discipline created successfully');
     }
 
-    public function update(Request $request, $encodedId)
+    public function update(Request $request, $id)
     {
         $this->authorize('edit_disciplines');
         
-        $discipline = discipline::findByEncodedIdOrFail($encodedId);
+        $discipline = Discipline::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
@@ -81,20 +81,20 @@ class disciplineController extends Controller
         return $this->success($discipline, 'Discipline updated successfully');
     }
 
-    public function destroy($encodedId)
+    public function destroy($id)
     {
         $this->authorize('delete_disciplines');
 
-        $discipline = discipline::findByEncodedIdOrFail($encodedId);
+        $discipline = Discipline::findOrFail($id);
         $discipline->delete();
         return $this->success(null, 'Discipline deleted successfully');
     }
 
-    public function toggleActive($encodedId)
+    public function toggleActive($id)
     {
         $this->authorize('edit_disciplines');
 
-        $discipline = discipline::findByEncodedIdOrFail($encodedId);
+        $discipline = Discipline::findOrFail($id);
         $discipline->is_active = !$discipline->is_active;
         $discipline->save();
         return $this->success($discipline, 'Discipline active status toggled successfully');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ServiceResource;
 use App\Models\Service;
+use App\Models\Discipline;
 use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +35,7 @@ class ServiceController extends Controller
     {
         $this->authorize('view_services');
 
-        $services = Service::with('author')->get()->map(function ($service) {
+        $services = Service::with(['author', 'disciplines'])->get()->map(function ($service) {
             return [
                 'id' => $service->encoded_id,
                 'title' => $service->title,
@@ -42,6 +43,12 @@ class ServiceController extends Controller
                 'slug' => $service->slug,
                 'cover_photo' => $service->cover_photo ? env('APP_URL') . '/storage/' . $service->cover_photo : null,
                 'is_active' => $service->is_active,
+                'disciplines' => $service->disciplines->map(function ($discipline) {
+                    return [
+                        'id' => $discipline->id,
+                        'title' => $discipline->title,
+                    ];
+                }),
                 'author' => [
                     'id' => $service->author->encoded_id,
                     'name' => $service->author->name,
@@ -66,7 +73,7 @@ class ServiceController extends Controller
         $this->authorize('view_services');
 
         $service = Service::findByEncodedIdOrFail($encodedId);
-        return $this->success(new ServiceResource($service->load('author')), 'Service retrieved successfully');
+        return $this->success(new ServiceResource($service->load(['author', 'disciplines'])), 'Service retrieved successfully');
     }
 
     /**
@@ -79,7 +86,7 @@ class ServiceController extends Controller
     {
         $this->authorize('view_services');
 
-        $service = Service::with('author')->bySlug($slug)->first();
+        $service = Service::with(['author', 'disciplines'])->bySlug($slug)->first();
 
         if (!$service) {
             return $this->error('Service not found', 404);
@@ -104,13 +111,17 @@ class ServiceController extends Controller
             'description' => 'required|string',
             'slug' => 'required|string|max:255|unique:services,slug',
             'cover_photo' => 'required|image|max:4096',
-            'content1' => 'required|string',
-            'image1' => 'sometimes|nullable|image|max:4096',
-            'content2' => 'required|string',
-            'image2' => 'sometimes|nullable|image|max:4096',
-            'content3' => 'required|string',
-            'image3' => 'sometimes|nullable|image|max:4096',
+            'content1' => 'nullable|string',
+            'image1' => 'nullable|image|max:4096',
+            'content2' => 'nullable|string',
+            'image2' => 'nullable|image|max:4096',
+            'content3' => 'nullable|string',
+            'image3' => 'nullable|image|max:4096',
             'is_active' => 'sometimes|boolean',
+            'discipline_ids' => 'sometimes|array',
+            'discipline_ids.*' => 'required|integer|exists:disciplines,id',
+            'disciplines' => 'sometimes|array',
+            'disciplines.*' => 'required|integer|exists:disciplines,id',
         ]);
 
         if ($validator->fails()) {
@@ -140,7 +151,16 @@ class ServiceController extends Controller
 
             $service = Service::create($data);
 
-            return $this->success(new ServiceResource($service->load('author')), 'Service created successfully', 201);
+            // Sync disciplines if provided (accepts both 'discipline_ids' and 'disciplines')
+            $disciplineField = $request->has('discipline_ids') ? 'discipline_ids' : ($request->has('disciplines') ? 'disciplines' : null);
+            if ($disciplineField) {
+                $disciplineIds = array_filter($request->input($disciplineField), function($id) {
+                    return is_numeric($id) && Discipline::where('id', $id)->exists();
+                });
+                $service->disciplines()->sync($disciplineIds);
+            }
+
+            return $this->success(new ServiceResource($service->load(['author', 'disciplines'])), 'Service created successfully', 201);
         } catch (\Exception $e) {
             return $this->error('Failed to create service: ' . $e->getMessage(), 500);
         }
@@ -164,13 +184,17 @@ class ServiceController extends Controller
             'description' => 'sometimes|required|string',
             'slug' => 'sometimes|required|string|max:255|unique:services,slug,' . $service->id,
             'cover_photo' => 'sometimes|required|image|max:4096',
-            'content1' => 'sometimes|required|string',
-            'image1' => 'sometimes|nullable|image|max:4096',
-            'content2' => 'sometimes|required|string',
-            'image2' => 'sometimes|nullable|image|max:4096',
-            'content3' => 'sometimes|required|string',
-            'image3' => 'sometimes|nullable|image|max:4096',
+            'content1' => 'nullable|string',
+            'image1' => 'nullable|image|max:4096',
+            'content2' => 'nullable|string',
+            'image2' => 'nullable|image|max:4096',
+            'content3' => 'nullable|string',
+            'image3' => 'nullable|image|max:4096',
             'is_active' => 'sometimes|boolean',
+            'discipline_ids' => 'sometimes|array',
+            'discipline_ids.*' => 'required|integer|exists:disciplines,id',
+            'disciplines' => 'sometimes|array',
+            'disciplines.*' => 'required|integer|exists:disciplines,id',
         ]);
 
         if ($validator->fails()) {
@@ -215,7 +239,16 @@ class ServiceController extends Controller
 
             $service->update($data);
 
-            return $this->success(new ServiceResource($service->fresh()->load('author')), 'Service updated successfully');
+            // Sync disciplines if provided (accepts both 'discipline_ids' and 'disciplines')
+            $disciplineField = $request->has('discipline_ids') ? 'discipline_ids' : ($request->has('disciplines') ? 'disciplines' : null);
+            if ($disciplineField) {
+                $disciplineIds = array_filter($request->input($disciplineField), function($id) {
+                    return is_numeric($id) && Discipline::where('id', $id)->exists();
+                });
+                $service->disciplines()->sync($disciplineIds);
+            }
+
+            return $this->success(new ServiceResource($service->fresh()->load(['author', 'disciplines'])), 'Service updated successfully');
         } catch (\Exception $e) {
             return $this->error('Failed to update service: ' . $e->getMessage(), 500);
         }
