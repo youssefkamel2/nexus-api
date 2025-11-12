@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class BlogMediaController extends Controller
@@ -35,7 +36,8 @@ class BlogMediaController extends Controller
                 'size' => $file->getSize(),
             ], 'Video uploaded successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to upload video: ' . $e->getMessage(), 500);
+            Log::error('Blog video upload failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -63,7 +65,8 @@ class BlogMediaController extends Controller
         $youtubeId = $this->extractYoutubeId($request->url);
 
         if (!$youtubeId) {
-            return $this->error('Invalid YouTube URL', 422);
+            Log::warning('Invalid YouTube URL provided', ['url' => $request->url]);
+            return $this->error('Invalid request', 422);
         }
 
         return $this->success([

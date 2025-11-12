@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Blog;
 use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Resources\BlogResource;
 
 class BlogController extends Controller
@@ -48,7 +49,8 @@ class BlogController extends Controller
         $blog = Blog::with(['author', 'faqs'])->active()->bySlug($slug)->first();
 
         if (!$blog) {
-            return $this->error('Blog not found', 404);
+            Log::warning('Public blog not found', ['slug' => $slug]);
+            return $this->error('Resource not found', 404);
         }
 
         return $this->success(new BlogResource($blog), 'Blog retrieved successfully');
@@ -117,7 +119,8 @@ class BlogController extends Controller
         $blog = Blog::active()->bySlug($slug)->first();
         
         if (!$blog) {
-            return $this->error('Blog not found', 404);
+            Log::warning('Public blog not found', ['slug' => $slug]);
+            return $this->error('Resource not found', 404);
         }
 
         $relatedBlogs = Blog::active()

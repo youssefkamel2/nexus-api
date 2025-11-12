@@ -7,6 +7,7 @@ use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
 use App\Models\Feedback;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use App\Helpers\StorageHelper;
 use App\Http\Resources\FeedbackResource;
 
@@ -52,7 +53,8 @@ class FeedbackController extends Controller
             $feedback = Feedback::create($data);
             return $this->success(new FeedbackResource($feedback), 'Feedback created successfully', 201);
         } catch (\Exception $e) {
-            return $this->error('Failed to create feedback: ' . $e->getMessage(), 500);
+            Log::error('Feedback creation failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -63,7 +65,8 @@ class FeedbackController extends Controller
         $feedback = Feedback::findByEncodedId($encodedId);
 
         if (!$feedback) {
-            return $this->error('Feedback not found', 404);
+            Log::warning('Feedback not found', ['feedback_id' => $encodedId]);
+            return $this->error('Resource not found', 404);
         }
 
         $validator = Validator::make($request->all(), [
@@ -100,7 +103,8 @@ class FeedbackController extends Controller
             $feedback->update($data);
             return $this->success(new FeedbackResource($feedback), 'Feedback updated successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to update feedback: ' . $e->getMessage(), 500);
+            Log::error('Feedback update failed', ['error' => $e->getMessage(), 'feedback_id' => $encodedId]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -110,7 +114,8 @@ class FeedbackController extends Controller
         $feedback = Feedback::findByEncodedId($encodedId);
 
         if (!$feedback) {
-            return $this->error('Feedback not found', 404);
+            Log::warning('Feedback not found', ['feedback_id' => $encodedId]);
+            return $this->error('Resource not found', 404);
         }
 
         $feedback->delete();
@@ -125,7 +130,8 @@ class FeedbackController extends Controller
         $feedback = Feedback::findByEncodedId($encodedId);
 
         if (!$feedback) {
-            return $this->error('Feedback not found', 404);
+            Log::warning('Feedback not found', ['feedback_id' => $encodedId]);
+            return $this->error('Resource not found', 404);
         }
 
         $feedback->is_active = !$feedback->is_active;
@@ -168,7 +174,8 @@ class FeedbackController extends Controller
                         $deletedCount++;
                     }
                 } catch (\Exception $e) {
-                    $errors[] = "Failed to delete feedback {$encodedId}: " . $e->getMessage();
+                    Log::error('Feedback bulk delete item failed', ['error' => $e->getMessage(), 'feedback_id' => $encodedId]);
+                    $errors[] = "Failed to delete feedback";
                 }
             }
 
@@ -177,7 +184,8 @@ class FeedbackController extends Controller
                 'errors' => $errors
             ], "{$deletedCount} feedback(s) deleted successfully");
         } catch (\Exception $e) {
-            return $this->error('Failed to delete feedbacks: ' . $e->getMessage(), 500);
+            Log::error('Feedback bulk delete failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -214,7 +222,8 @@ class FeedbackController extends Controller
                         $updatedCount++;
                     }
                 } catch (\Exception $e) {
-                    $errors[] = "Failed to update feedback {$encodedId}: " . $e->getMessage();
+                    Log::error('Feedback bulk status update item failed', ['error' => $e->getMessage(), 'feedback_id' => $encodedId]);
+                    $errors[] = "Failed to update feedback";
                 }
             }
 
@@ -224,7 +233,8 @@ class FeedbackController extends Controller
                 'errors' => $errors
             ], "{$updatedCount} feedback(s) {$statusText} successfully");
         } catch (\Exception $e) {
-            return $this->error('Failed to update feedback status: ' . $e->getMessage(), 500);
+            Log::error('Feedback bulk status update failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 

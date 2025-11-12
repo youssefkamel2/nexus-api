@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
@@ -39,17 +40,19 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->error('Validation failed', 422);
+            return $this->error($validator->errors()->first(), 422);
         }
 
         $credentials = $request->only('email', 'password');
 
         try {
             if (!$token = JWTAuth::attempt($credentials)) {
-                return $this->error('Invalid credentials', 401);
+                Log::warning('Failed login attempt', ['email' => $request->email]);
+                return $this->error('Authentication failed', 401);
             }
         } catch (JWTException $e) {
-            return $this->error('Could not create token', 500);
+            Log::error('JWT token creation failed', ['error' => $e->getMessage()]);
+            return $this->error('Authentication error', 500);
         }
 
         $user = Auth::user();
@@ -102,7 +105,8 @@ class AuthController extends Controller
 
             return $this->success(null, 'Successfully logged out');
         } catch (JWTException $e) {
-            return $this->error('Failed to logout, please try again', 500);
+            Log::error('Logout failed', ['error' => $e->getMessage(), 'user_id' => Auth::id()]);
+            return $this->error('Logout error occurred', 500);
         }
     }
 
@@ -132,7 +136,8 @@ class AuthController extends Controller
                 'expires_in' => config('jwt.ttl') * 60
             ], 'Token refreshed successfully');
         } catch (JWTException $e) {
-            return $this->error('Token could not be refreshed', 401);
+            Log::error('Token refresh failed', ['error' => $e->getMessage(), 'user_id' => Auth::id()]);
+            return $this->error('Token refresh error', 401);
         }
     }
 }

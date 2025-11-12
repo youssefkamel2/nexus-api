@@ -10,6 +10,7 @@ use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Helpers\StorageHelper;
 
@@ -89,7 +90,8 @@ class ServiceController extends Controller
         $service = Service::with(['author', 'disciplines'])->bySlug($slug)->first();
 
         if (!$service) {
-            return $this->error('Service not found', 404);
+            Log::warning('Service not found by slug', ['slug' => $slug]);
+            return $this->error('Resource not found', 404);
         }
 
         return $this->success(new ServiceResource($service), 'Service retrieved successfully');
@@ -162,7 +164,8 @@ class ServiceController extends Controller
 
             return $this->success(new ServiceResource($service->load(['author', 'disciplines'])), 'Service created successfully', 201);
         } catch (\Exception $e) {
-            return $this->error('Failed to create service: ' . $e->getMessage(), 500);
+            Log::error('Service creation failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -198,7 +201,8 @@ class ServiceController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->error($validator->errors()->first(), 422);
+            Log::error('Service validation failed', ['errors' => $validator->errors()->toArray()]);
+            return $this->error('Unable to process request', 422);
         }
 
         try {
@@ -250,7 +254,8 @@ class ServiceController extends Controller
 
             return $this->success(new ServiceResource($service->fresh()->load(['author', 'disciplines'])), 'Service updated successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to update service: ' . $e->getMessage(), 500);
+            Log::error('Service update failed', ['error' => $e->getMessage(), 'service_id' => $encodedId, 'trace' => $e->getTraceAsString()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -269,7 +274,8 @@ class ServiceController extends Controller
             $service->delete();
             return $this->success(null, 'Service deleted successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to delete service: ' . $e->getMessage(), 500);
+            Log::error('Service deletion failed', ['error' => $e->getMessage(), 'service_id' => $encodedId]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -296,7 +302,8 @@ class ServiceController extends Controller
                 ]
             ], "Service {$status} successfully");
         } catch (\Exception $e) {
-            return $this->error('Failed to toggle service status: ' . $e->getMessage(), 500);
+            Log::error('Service status toggle failed', ['error' => $e->getMessage(), 'service_id' => $encodedId]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -316,7 +323,8 @@ class ServiceController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->error($validator->errors()->first(), 422);
+            Log::error('Service validation failed', ['errors' => $validator->errors()->toArray()]);
+            return $this->error('Unable to process request', 422);
         }
 
         try {
@@ -344,7 +352,8 @@ class ServiceController extends Controller
                         $deletedCount++;
                     }
                 } catch (\Exception $e) {
-                    $errors[] = "Failed to delete service {$encodedId}: " . $e->getMessage();
+                    Log::error('Service bulk delete item failed', ['error' => $e->getMessage(), 'service_id' => $encodedId]);
+                    $errors[] = "Failed to delete service";
                 }
             }
 
@@ -353,7 +362,8 @@ class ServiceController extends Controller
                 'errors' => $errors
             ], "{$deletedCount} service(s) deleted successfully");
         } catch (\Exception $e) {
-            return $this->error('Failed to delete services: ' . $e->getMessage(), 500);
+            Log::error('Service bulk delete failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -374,7 +384,8 @@ class ServiceController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->error($validator->errors()->first(), 422);
+            Log::error('Service validation failed', ['errors' => $validator->errors()->toArray()]);
+            return $this->error('Unable to process request', 422);
         }
 
         try {
@@ -390,7 +401,8 @@ class ServiceController extends Controller
                         $updatedCount++;
                     }
                 } catch (\Exception $e) {
-                    $errors[] = "Failed to update service {$encodedId}: " . $e->getMessage();
+                    Log::error('Service bulk status update item failed', ['error' => $e->getMessage(), 'service_id' => $encodedId]);
+                    $errors[] = "Failed to update service";
                 }
             }
 
@@ -400,7 +412,8 @@ class ServiceController extends Controller
                 'errors' => $errors
             ], "{$updatedCount} service(s) {$statusText} successfully");
         } catch (\Exception $e) {
-            return $this->error('Failed to update service status: ' . $e->getMessage(), 500);
+            Log::error('Service bulk status update failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 }

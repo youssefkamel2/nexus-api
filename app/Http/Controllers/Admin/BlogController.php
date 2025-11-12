@@ -7,6 +7,7 @@ use App\Models\Blog;
 use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use App\Http\Resources\BlogResource;
 use App\Helpers\StorageHelper;
 
@@ -82,7 +83,8 @@ class BlogController extends Controller
                 'id' => $blog->encoded_id,
                 'title' => $blog->title,
                 'slug' => $blog->slug,
-                'cover_photo' => $blog->cover_photo_url,
+                // 'cover_photo' => $blog->cover_photo_url,
+                'cover_photo' => $blog->cover_photo ? env('APP_URL') . '/storage/' . $blog->cover_photo : null,
                 'category' => $blog->category,
                 'mark_as_hero' => $blog->mark_as_hero,
                 'is_active' => $blog->is_active,
@@ -155,7 +157,8 @@ class BlogController extends Controller
 
             return $this->success(new BlogResource($blog->load('author')), 'Blog created successfully', 201);
         } catch (\Exception $e) {
-            return $this->error('Failed to create blog: ' . $e->getMessage(), 500);
+            Log::error('Blog creation failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -186,7 +189,8 @@ class BlogController extends Controller
         $blog = Blog::with(['author', 'faqs'])->bySlug($slug)->first();
 
         if (!$blog) {
-            return $this->error('Blog not found', 404);
+            Log::warning('Blog not found by slug', ['slug' => $slug]);
+            return $this->error('Resource not found', 404);
         }
 
         return $this->success(new BlogResource($blog), 'Blog retrieved successfully');
@@ -249,7 +253,8 @@ class BlogController extends Controller
             $blog->update($data);
             return $this->success(new BlogResource($blog->fresh()->load('author')), 'Blog updated successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to update blog: ' . $e->getMessage(), 500);
+            Log::error('Blog update failed', ['error' => $e->getMessage(), 'blog_id' => $encodedId, 'trace' => $e->getTraceAsString()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -274,7 +279,8 @@ class BlogController extends Controller
             $blog->delete();
             return $this->success(null, 'Blog deleted successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to delete blog: ' . $e->getMessage(), 500);
+            Log::error('Blog deletion failed', ['error' => $e->getMessage(), 'blog_id' => $encodedId, 'trace' => $e->getTraceAsString()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -333,7 +339,8 @@ class BlogController extends Controller
                         $deletedCount++;
                     }
                 } catch (\Exception $e) {
-                    $errors[] = "Failed to delete blog {$encodedId}: " . $e->getMessage();
+                    Log::error('Blog bulk delete item failed', ['error' => $e->getMessage(), 'blog_id' => $encodedId]);
+                    $errors[] = "Failed to delete blog";
                 }
             }
 
@@ -342,7 +349,8 @@ class BlogController extends Controller
                 'errors' => $errors
             ], "{$deletedCount} blog(s) deleted successfully");
         } catch (\Exception $e) {
-            return $this->error('Failed to delete blogs: ' . $e->getMessage(), 500);
+            Log::error('Blog bulk delete failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -379,7 +387,8 @@ class BlogController extends Controller
                         $updatedCount++;
                     }
                 } catch (\Exception $e) {
-                    $errors[] = "Failed to update blog {$encodedId}: " . $e->getMessage();
+                    Log::error('Blog bulk status update item failed', ['error' => $e->getMessage(), 'blog_id' => $encodedId]);
+                    $errors[] = "Failed to update blog";
                 }
             }
 
@@ -389,7 +398,8 @@ class BlogController extends Controller
                 'errors' => $errors
             ], "{$updatedCount} blog(s) {$statusText} successfully");
         } catch (\Exception $e) {
-            return $this->error('Failed to update blog status: ' . $e->getMessage(), 500);
+            Log::error('Blog bulk status update failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -423,7 +433,8 @@ class BlogController extends Controller
 
             return $this->success($options, 'Blog options retrieved successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to retrieve options: ' . $e->getMessage(), 500);
+            Log::error('Blog options retrieval failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -445,7 +456,8 @@ class BlogController extends Controller
 
             return $this->success(null, 'Category updated for ' . $count . ' blogs');
         } catch (\Exception $e) {
-            return $this->error('Failed to update blog categories: ' . $e->getMessage(), 500);
+            Log::error('Blog bulk category update failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -479,7 +491,8 @@ class BlogController extends Controller
 
             return $this->success(new BlogResource($blog->load('author')), 'Blog marked as hero successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to update hero status: ' . $e->getMessage(), 500);
+            Log::error('Blog mark as hero failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -509,7 +522,8 @@ class BlogController extends Controller
 
             return $this->success(null, 'Updated ' . $count . ' blogs');
         } catch (\Exception $e) {
-            return $this->error('Failed to update blogs: ' . $e->getMessage(), 500);
+            Log::error('Blog bulk update failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -538,7 +552,8 @@ class BlogController extends Controller
             
             return $this->success(['url' => $url], 'Image uploaded successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to upload image: ' . $e->getMessage(), 500);
+            Log::error('Blog content image upload failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -565,7 +580,8 @@ class BlogController extends Controller
 
             return $this->success($stats, 'Blog statistics retrieved successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to retrieve statistics: ' . $e->getMessage(), 500);
+            Log::error('Blog statistics retrieval failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 }

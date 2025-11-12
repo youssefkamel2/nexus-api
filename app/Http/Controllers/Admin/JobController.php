@@ -9,6 +9,7 @@ use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class JobController extends Controller
 {
@@ -109,7 +110,8 @@ class JobController extends Controller
         $job = Job::with('author')->bySlug($slug)->first();
 
         if (!$job) {
-            return $this->error('Job not found', 404);
+            Log::warning('Job not found by slug', ['slug' => $slug]);
+            return $this->error('Resource not found', 404);
         }
 
         return $this->success(new JobResource($job), 'Job retrieved successfully');
@@ -146,7 +148,8 @@ class JobController extends Controller
             $job = Job::create($data);
             return $this->success(new JobResource($job->load('author')), 'Job created successfully', 201);
         } catch (\Exception $e) {
-            return $this->error('Failed to create job: ' . $e->getMessage(), 500);
+            Log::error('Job creation failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -182,7 +185,8 @@ class JobController extends Controller
             $job->update($data);
             return $this->success(new JobResource($job->fresh()->load('author')), 'Job updated successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to update job: ' . $e->getMessage(), 500);
+            Log::error('Job update failed', ['error' => $e->getMessage(), 'job_id' => $encodedId, 'trace' => $e->getTraceAsString()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -201,13 +205,15 @@ class JobController extends Controller
             
             // Check if job has applications
             if ($job->applications()->count() > 0) {
-                return $this->error('Cannot delete job with existing applications', 422);
+                Log::warning('Attempt to delete job with applications', ['job_id' => $encodedId]);
+                return $this->error('Operation not permitted', 422);
             }
             
             $job->delete();
             return $this->success(null, 'Job deleted successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to delete job: ' . $e->getMessage(), 500);
+            Log::error('Job deletion failed', ['error' => $e->getMessage(), 'job_id' => $encodedId]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -234,7 +240,8 @@ class JobController extends Controller
                 ]
             ], "Job {$status} successfully");
         } catch (\Exception $e) {
-            return $this->error('Failed to toggle job status: ' . $e->getMessage(), 500);
+            Log::error('Job status toggle failed', ['error' => $e->getMessage(), 'job_id' => $encodedId]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -269,7 +276,8 @@ class JobController extends Controller
                         $deletedCount++;
                     }
                 } catch (\Exception $e) {
-                    $errors[] = "Failed to delete job {$encodedId}: " . $e->getMessage();
+                    Log::error('Job bulk delete item failed', ['error' => $e->getMessage(), 'job_id' => $encodedId]);
+                    $errors[] = "Failed to delete job";
                 }
             }
 
@@ -278,7 +286,8 @@ class JobController extends Controller
                 'errors' => $errors
             ], "{$deletedCount} job(s) deleted successfully");
         } catch (\Exception $e) {
-            return $this->error('Failed to delete jobs: ' . $e->getMessage(), 500);
+            Log::error('Job bulk delete failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -315,7 +324,8 @@ class JobController extends Controller
                         $updatedCount++;
                     }
                 } catch (\Exception $e) {
-                    $errors[] = "Failed to update job {$encodedId}: " . $e->getMessage();
+                    Log::error('Job bulk status update item failed', ['error' => $e->getMessage(), 'job_id' => $encodedId]);
+                    $errors[] = "Failed to update job";
                 }
             }
 
@@ -325,7 +335,8 @@ class JobController extends Controller
                 'errors' => $errors
             ], "{$updatedCount} job(s) {$statusText} successfully");
         } catch (\Exception $e) {
-            return $this->error('Failed to update job status: ' . $e->getMessage(), 500);
+            Log::error('Job bulk status update failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -367,7 +378,8 @@ class JobController extends Controller
 
             return $this->success($options, 'Job options retrieved successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to retrieve options: ' . $e->getMessage(), 500);
+            Log::error('Job options retrieval failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -397,7 +409,8 @@ class JobController extends Controller
 
             return $this->success($stats, 'Job statistics retrieved successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to retrieve statistics: ' . $e->getMessage(), 500);
+            Log::error('Job statistics retrieval failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 }

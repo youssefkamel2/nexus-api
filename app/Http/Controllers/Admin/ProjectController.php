@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use App\Helpers\StorageHelper;
 
 
@@ -91,7 +92,8 @@ class ProjectController extends Controller
         $project = Project::with(['author', 'disciplines'])->bySlug($slug)->first();
 
         if (!$project) {
-            return $this->error('Project not found', 404);
+            Log::warning('Project not found by slug', ['slug' => $slug]);
+            return $this->error('Resource not found', 404);
         }
 
         return $this->success(new ProjectResource($project), 'Project retrieved successfully');
@@ -171,7 +173,8 @@ class ProjectController extends Controller
 
             return $this->success(new ProjectResource($project->load(['author', 'disciplines'])), 'Project created successfully', 201);
         } catch (\Exception $e) {
-            return $this->error('Failed to create project: ' . $e->getMessage(), 500);
+            Log::error('Project creation failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -265,7 +268,8 @@ class ProjectController extends Controller
 
             return $this->success(new ProjectResource($project->fresh()->load(['author', 'disciplines'])), 'Project updated successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to update project: ' . $e->getMessage(), 500);
+            Log::error('Project update failed', ['error' => $e->getMessage(), 'project_id' => $encodedId, 'trace' => $e->getTraceAsString()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -299,7 +303,8 @@ class ProjectController extends Controller
             $project->delete();
             return $this->success(null, 'Project deleted successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to delete project: ' . $e->getMessage(), 500);
+            Log::error('Project deletion failed', ['error' => $e->getMessage(), 'project_id' => $encodedId]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -326,7 +331,8 @@ class ProjectController extends Controller
                 ]
             ], "Project {$status} successfully");
         } catch (\Exception $e) {
-            return $this->error('Failed to toggle project status: ' . $e->getMessage(), 500);
+            Log::error('Project status toggle failed', ['error' => $e->getMessage(), 'project_id' => $encodedId]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -374,7 +380,8 @@ class ProjectController extends Controller
                         $deletedCount++;
                     }
                 } catch (\Exception $e) {
-                    $errors[] = "Failed to delete project {$encodedId}: " . $e->getMessage();
+                    Log::error('Project bulk delete item failed', ['error' => $e->getMessage(), 'project_id' => $encodedId]);
+                    $errors[] = "Failed to delete project";
                 }
             }
 
@@ -383,7 +390,8 @@ class ProjectController extends Controller
                 'errors' => $errors
             ], "{$deletedCount} project(s) deleted successfully");
         } catch (\Exception $e) {
-            return $this->error('Failed to delete projects: ' . $e->getMessage(), 500);
+            Log::error('Project bulk delete failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -420,7 +428,8 @@ class ProjectController extends Controller
                         $updatedCount++;
                     }
                 } catch (\Exception $e) {
-                    $errors[] = "Failed to update project {$encodedId}: " . $e->getMessage();
+                    Log::error('Project bulk status update item failed', ['error' => $e->getMessage(), 'project_id' => $encodedId]);
+                    $errors[] = "Failed to update project";
                 }
             }
 
@@ -430,7 +439,8 @@ class ProjectController extends Controller
                 'errors' => $errors
             ], "{$updatedCount} project(s) {$statusText} successfully");
         } catch (\Exception $e) {
-            return $this->error('Failed to update project status: ' . $e->getMessage(), 500);
+            Log::error('Project bulk status update failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 }

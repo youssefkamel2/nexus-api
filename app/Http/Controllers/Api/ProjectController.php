@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
 use App\Traits\ResponseTrait;
+use Illuminate\Support\Facades\Log;
 
 class ProjectController extends Controller
 {
@@ -33,7 +34,8 @@ class ProjectController extends Controller
         $project = Project::with('author')->active()->bySlug($slug)->first();
 
         if (!$project) {
-            return $this->error('Project not found', 404);
+            Log::warning('Public project not found', ['slug' => $slug]);
+            return $this->error('Resource not found', 404);
         }
 
         return $this->success(new ProjectResource($project), 'Project retrieved successfully');

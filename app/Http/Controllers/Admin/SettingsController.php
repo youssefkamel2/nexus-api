@@ -8,6 +8,7 @@ use App\Models\Setting;
 use App\Http\Resources\SettingsResource;
 use App\Traits\ResponseTrait;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use App\Helpers\StorageHelper;
 
 class SettingsController extends Controller
@@ -58,7 +59,8 @@ class SettingsController extends Controller
             $setting = Setting::updateOrCreate(['id' => 1], $data);
             return $this->success(new SettingsResource($setting), 'Setting updated successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to update setting: ' . $e->getMessage(), 500);
+            Log::error('Settings update failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return $this->error('Operation failed', 500);
         }
     }
 

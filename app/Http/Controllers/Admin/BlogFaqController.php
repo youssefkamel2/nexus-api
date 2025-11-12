@@ -8,6 +8,7 @@ use App\Models\BlogFaq;
 use App\Http\Resources\BlogFaqResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use App\Traits\ResponseTrait;
 
 class BlogFaqController extends Controller
@@ -47,12 +48,14 @@ class BlogFaqController extends Controller
         $faq = BlogFaq::find($faq);
 
         if (!$faq) {
-            return $this->error('FAQ not found', 404);
+            Log::warning('Blog FAQ not found', ['faq_id' => $faq]);
+            return $this->error('Resource not found', 404);
         }
 
         // Ensure FAQ belongs to the blog
         if ($faq->blog_id !== $blog->id) {
-            return $this->error('FAQ not found for this blog', 404);
+            Log::warning('Blog FAQ mismatch', ['faq_id' => $faq->id, 'blog_id' => $blog->id]);
+            return $this->error('Resource not found', 404);
         }
 
         
@@ -65,12 +68,14 @@ class BlogFaqController extends Controller
         $faq = BlogFaq::find($faq);
 
         if (!$faq) {
-            return $this->error('FAQ not found', 404);
+            Log::warning('Blog FAQ not found', ['faq_id' => $faq]);
+            return $this->error('Resource not found', 404);
         }
 
         // Ensure FAQ belongs to the blog
         if ($faq->blog_id !== $blog->id) {
-            return $this->error('FAQ not found for this blog', 404);
+            Log::warning('Blog FAQ mismatch', ['faq_id' => $faq->id, 'blog_id' => $blog->id]);
+            return $this->error('Resource not found', 404);
         }
 
         $validator = Validator::make($request->all(), [
@@ -92,12 +97,14 @@ class BlogFaqController extends Controller
         $faq = BlogFaq::find($faq);
 
         if (!$faq) {
-            return $this->error('FAQ not found', 404);
+            Log::warning('Blog FAQ not found', ['faq_id' => $faq]);
+            return $this->error('Resource not found', 404);
         }
         
         // Ensure FAQ belongs to the blog
         if ($faq->blog_id !== $blog->id) {
-            return $this->error('FAQ not found for this blog', 404);
+            Log::warning('Blog FAQ mismatch', ['faq_id' => $faq->id, 'blog_id' => $blog->id]);
+            return $this->error('Resource not found', 404);
         }
 
         $faq->delete();

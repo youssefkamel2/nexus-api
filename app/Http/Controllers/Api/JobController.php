@@ -10,6 +10,9 @@ use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use App\Mail\NewJobApplicationNotification;
 
 class JobController extends Controller
 {
@@ -61,7 +64,8 @@ class JobController extends Controller
         $job = Job::with('author')->active()->bySlug($slug)->first();
 
         if (!$job) {
-            return $this->error('Job not found', 404);
+            Log::warning('Public job not found', ['slug' => $slug]);
+            return $this->error('Resource not found', 404);
         }
 
         return $this->success(new JobResource($job), 'Job retrieved successfully');
@@ -79,7 +83,8 @@ class JobController extends Controller
         $job = Job::active()->bySlug($slug)->first();
 
         if (!$job) {
-            return $this->error('Job not found', 404);
+            Log::warning('Public job not found', ['slug' => $slug]);
+            return $this->error('Resource not found', 404);
         }
 
         $validator = Validator::make($request->all(), [
@@ -102,7 +107,8 @@ class JobController extends Controller
             ->first();
 
         if ($existingApplication) {
-            return $this->error('You have already applied for this job', 422);
+            Log::warning('Duplicate job application attempt', ['email' => $request->email, 'job_slug' => $slug]);
+            return $this->error('Application already submitted', 422);
         }
 
         try {
@@ -121,6 +127,14 @@ class JobController extends Controller
             // Update job applications count
             $job->updateApplicationsCount();
 
+            // Send email notification to admin
+            try {
+                Mail::to('careers@nexus-consults.com')->send(new NewJobApplicationNotification($application->load('job')));
+            } catch (\Exception $e) {
+                // Log the error but don't fail the application submission
+                \Log::error('Failed to send job application notification email: ' . $e->getMessage());
+            }
+
             return $this->success([
                 'application_id' => $application->encoded_id,
                 'message' => 'Application submitted successfully',
@@ -131,7 +145,8 @@ class JobController extends Controller
             ], 'Application submitted successfully', 201);
 
         } catch (\Exception $e) {
-            return $this->error('Failed to submit application: ' . $e->getMessage(), 500);
+            Log::error('Job application submission failed', ['error' => $e->getMessage(), 'job_slug' => $slug, 'trace' => $e->getTraceAsString()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -197,7 +212,8 @@ class JobController extends Controller
 
             return $this->success($stats, 'Job statistics retrieved successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to retrieve statistics: ' . $e->getMessage(), 500);
+            Log::error('Public job statistics retrieval failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 }

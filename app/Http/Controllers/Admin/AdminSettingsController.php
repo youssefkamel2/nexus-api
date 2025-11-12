@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\JsonResponse;
 use App\Models\User;
 use App\Mail\VerificationCodeMail;
@@ -63,7 +64,8 @@ class AdminSettingsController extends Controller
             !$user->email_verification_expires_at ||
             now()->gt($user->email_verification_expires_at)
         ) {
-            return $this->error('Invalid or expired verification code.', 403);
+            Log::warning('Invalid verification code attempt', ['user_id' => $user->id]);
+            return $this->error('Verification failed', 403);
         }
 
         if ($request->has('name')) {

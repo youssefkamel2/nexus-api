@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ServiceResource;
 use App\Models\Service;
 use App\Traits\ResponseTrait;
+use Illuminate\Support\Facades\Log;
 
 class ServiceController extends Controller
 {
@@ -33,7 +34,8 @@ class ServiceController extends Controller
         $service = Service::with('author')->active()->bySlug($slug)->first();
 
         if (!$service) {
-            return $this->error('Service not found', 404);
+            Log::warning('Public service not found', ['slug' => $slug]);
+            return $this->error('Resource not found', 404);
         }
 
         return $this->success(new ServiceResource($service), 'Service retrieved successfully');

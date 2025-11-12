@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class JobApplicationController extends Controller
 {
@@ -172,7 +173,8 @@ class JobApplicationController extends Controller
                 'Application status updated successfully'
             );
         } catch (\Exception $e) {
-            return $this->error('Failed to update application status: ' . $e->getMessage(), 500);
+            Log::error('Application status update failed', ['error' => $e->getMessage(), 'application_id' => $encodedId]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -209,7 +211,8 @@ class JobApplicationController extends Controller
                 'Notes added successfully'
             );
         } catch (\Exception $e) {
-            return $this->error('Failed to add notes: ' . $e->getMessage(), 500);
+            Log::error('Application notes addition failed', ['error' => $e->getMessage(), 'application_id' => $encodedId]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -228,23 +231,27 @@ class JobApplicationController extends Controller
             $application = JobApplication::findByEncodedIdOrFail($encodedId);
 
             if ($documentType !== 'cv') {
-                return $this->error('Invalid document type', 400);
+                Log::warning('Invalid document type requested', ['type' => $documentType]);
+                return $this->error('Invalid request', 400);
             }
 
             if (!$application->cv_path) {
-                return $this->error('CV not found', 404);
+                Log::warning('CV not found for application', ['application_id' => $encodedId]);
+                return $this->error('Resource not found', 404);
             }
             
             $filePath = $application->cv_path;
             $fileName = $application->name . '_CV.pdf';
 
             if (!$filePath || !Storage::disk('public')->exists($filePath)) {
-                return $this->error('Document not found', 404);
+                Log::warning('Document file missing', ['path' => $filePath, 'application_id' => $encodedId]);
+                return $this->error('Resource not found', 404);
             }
 
             return Storage::disk('public')->download($filePath, $fileName);
         } catch (\Exception $e) {
-            return $this->error('Failed to download document: ' . $e->getMessage(), 500);
+            Log::error('Document download failed', ['error' => $e->getMessage(), 'application_id' => $encodedId]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -273,7 +280,8 @@ class JobApplicationController extends Controller
             
             return $this->success(null, 'Job application deleted successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to delete application: ' . $e->getMessage(), 500);
+            Log::error('Application deletion failed', ['error' => $e->getMessage(), 'application_id' => $encodedId]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -317,7 +325,8 @@ class JobApplicationController extends Controller
                         $deletedCount++;
                     }
                 } catch (\Exception $e) {
-                    $errors[] = "Failed to delete application {$encodedId}: " . $e->getMessage();
+                    Log::error('Application bulk delete item failed', ['error' => $e->getMessage(), 'application_id' => $encodedId]);
+                    $errors[] = "Failed to delete application";
                 }
             }
 
@@ -331,7 +340,8 @@ class JobApplicationController extends Controller
                 'errors' => $errors
             ], "{$deletedCount} application(s) deleted successfully");
         } catch (\Exception $e) {
-            return $this->error('Failed to delete applications: ' . $e->getMessage(), 500);
+            Log::error('Application bulk delete failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -390,7 +400,8 @@ class JobApplicationController extends Controller
 
             return $this->success($statusOptions, 'Application status options retrieved successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to retrieve status options: ' . $e->getMessage(), 500);
+            Log::error('Application status options retrieval failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -429,7 +440,8 @@ class JobApplicationController extends Controller
 
             return $this->success($stats, 'Application statistics retrieved successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to retrieve statistics: ' . $e->getMessage(), 500);
+            Log::error('Application statistics retrieval failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 }

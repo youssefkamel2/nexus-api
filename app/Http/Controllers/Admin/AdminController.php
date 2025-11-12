@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -149,7 +150,7 @@ class AdminController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->error('Validation failed', 422);
+            return $this->error($validator->errors()->first(), 422);
         }
 
         $data = $request->only(['name', 'email', 'profile_image']);
@@ -193,14 +194,16 @@ class AdminController extends Controller
         
         // Prevent deleting super admin
         if ($user->email === 'admin@nexusengineering.com') {
-            return $this->error('Cannot delete super admin', 403);
+            Log::warning('Attempt to delete super admin', ['user_id' => $encodedId]);
+            return $this->error('Operation not permitted', 403);
         }
 
         try {
             $user->delete();
             return $this->success(null, 'Admin deleted successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to delete admin: ' . $e->getMessage(), 500);
+            Log::error('Admin deletion failed', ['error' => $e->getMessage(), 'user_id' => $encodedId]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -243,7 +246,8 @@ class AdminController extends Controller
         $userID = $user->id;
 
         if ($authUserID === $userID) {
-            return $this->error('Cannot update your own permissions', 400);
+            Log::warning('Attempt to update own permissions', ['user_id' => $encodedId]);
+            return $this->error('Operation not permitted', 400);
         }
 
         $validator = Validator::make($request->all(), [
@@ -252,7 +256,7 @@ class AdminController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->error('Validation failed', 422);
+            return $this->error($validator->errors()->first(), 422);
         }
 
         $user = User::findByEncodedIdOrFail($encodedId);
@@ -293,7 +297,8 @@ class AdminController extends Controller
                 ]
             ], 'Admin ' . $status . ' successfully');
         } catch (\Exception $e) {
-            return $this->error('Failed to toggle admin status: ' . $e->getMessage(), 500);
+            Log::error('Admin status toggle failed', ['error' => $e->getMessage(), 'user_id' => $encodedId]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -334,7 +339,8 @@ class AdminController extends Controller
                         $deletedCount++;
                     }
                 } catch (\Exception $e) {
-                    $errors[] = "Failed to delete admin {$encodedId}: " . $e->getMessage();
+                    Log::error('Admin bulk delete item failed', ['error' => $e->getMessage(), 'user_id' => $encodedId]);
+                    $errors[] = "Failed to delete admin";
                 }
             }
 
@@ -343,7 +349,8 @@ class AdminController extends Controller
                 'errors' => $errors
             ], "{$deletedCount} admin(s) deleted successfully");
         } catch (\Exception $e) {
-            return $this->error('Failed to delete admins: ' . $e->getMessage(), 500);
+            Log::error('Admin bulk delete failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
@@ -386,7 +393,8 @@ class AdminController extends Controller
                         $updatedCount++;
                     }
                 } catch (\Exception $e) {
-                    $errors[] = "Failed to update admin {$encodedId}: " . $e->getMessage();
+                    Log::error('Admin bulk status update item failed', ['error' => $e->getMessage(), 'user_id' => $encodedId]);
+                    $errors[] = "Failed to update admin";
                 }
             }
 
@@ -396,7 +404,8 @@ class AdminController extends Controller
                 'errors' => $errors
             ], "{$updatedCount} admin(s) {$statusText} successfully");
         } catch (\Exception $e) {
-            return $this->error('Failed to update admin status: ' . $e->getMessage(), 500);
+            Log::error('Admin bulk status update failed', ['error' => $e->getMessage()]);
+            return $this->error('Operation failed', 500);
         }
     }
 
