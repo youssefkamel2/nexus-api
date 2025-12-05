@@ -20,12 +20,6 @@ class Project extends Model
         'slug',
         'description',
         'cover_photo',
-        'content1',
-        'image1',
-        'content2',
-        'image2',
-        'content3',
-        'image3',
         'is_active',
         'created_by',
     ];
@@ -70,5 +64,13 @@ class Project extends Model
     {
         return $this->belongsToMany(Discipline::class, 'discipline_project', 'project_id', 'discipline_id')
                     ->withTimestamps();
+    }
+
+    /**
+     * Get the sections for this project.
+     */
+    public function sections()
+    {
+        return $this->hasMany(ProjectSection::class)->orderBy('order');
     }
 }

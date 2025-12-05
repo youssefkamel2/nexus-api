@@ -21,20 +21,15 @@ class ProjectResource extends JsonResource
             'description' => $this->description,
             // return the url from APP_ENV
             'cover_photo' => $this->cover_photo ? env('APP_URL') . '/storage/' . $this->cover_photo : null,
-            'sections' => [
-                [
-                    'content' => $this->content1,
-                    'image' => $this->image1 ? env('APP_URL') . '/storage/' . $this->image1 : null,
-                ],
-                [
-                    'content' => $this->content2,
-                    'image' => $this->image2 ? env('APP_URL') . '/storage/' . $this->image2 : null,
-                ],
-                [
-                    'content' => $this->content3,
-                    'image' => $this->image3 ? env('APP_URL') . '/storage/' . $this->image3 : null,
-                ],
-            ],
+            'sections' => $this->sections->map(function ($section) {
+                return [
+                    'id' => $section->id,
+                    'content' => $section->content,
+                    'image' => $section->image ? env('APP_URL') . '/storage/' . $section->image : null,
+                    'caption' => $section->caption,
+                    'order' => $section->order,
+                ];
+            }),
             'is_active' => $this->is_active,
             'disciplines' => $this->disciplines,
             'author' => [

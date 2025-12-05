@@ -20,12 +20,6 @@ class Service extends Model
         'description',
         'slug',
         'cover_photo',
-        'content1',
-        'image1',
-        'content2',
-        'image2',
-        'content3',
-        'image3',
         'is_active',
         'created_by',
     ];
@@ -70,5 +64,13 @@ class Service extends Model
     {
         return $this->belongsToMany(Discipline::class, 'discipline_service', 'service_id', 'discipline_id')
                     ->withTimestamps();
+    }
+
+    /**
+     * Get the sections for this service.
+     */
+    public function sections()
+    {
+        return $this->hasMany(ServiceSection::class)->orderBy('order');
     }
 }

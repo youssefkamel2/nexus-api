@@ -38,7 +38,7 @@ class ProjectController extends Controller
     {
         $this->authorize('view_projects');
 
-        $projects = Project::with(['author', 'disciplines'])->get()->map(function ($project) {
+        $projects = Project::with(['author', 'disciplines', 'sections'])->get()->map(function ($project) {
             return [
                 'id' => $project->encoded_id,
                 'title' => $project->title,
@@ -76,7 +76,7 @@ class ProjectController extends Controller
         $this->authorize('view_projects');
 
         $project = Project::findByEncodedIdOrFail($encodedId);
-        return $this->success(new ProjectResource($project->load(['author', 'disciplines'])), 'Project retrieved successfully');
+        return $this->success(new ProjectResource($project->load(['author', 'disciplines', 'sections'])), 'Project retrieved successfully');
     }
 
     /**
@@ -109,23 +109,31 @@ class ProjectController extends Controller
     {
         $this->authorize('create_projects');
 
-        $validator = Validator::make($request->all(), [
+        $validationRules = [
             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:projects,slug',
             'description' => 'required|string',
             'cover_photo' => 'required|image|max:4096',
-            'content1' => 'sometimes|nullable|string',
-            'image1' => 'sometimes|nullable|image|max:4096',
-            'content2' => 'sometimes|nullable|string',
-            'image2' => 'sometimes|nullable|image|max:4096',
-            'content3' => 'sometimes|nullable|string',
-            'image3' => 'sometimes|nullable|image|max:4096',
             'is_active' => 'sometimes|boolean',
             'discipline_ids' => 'sometimes|array',
             'discipline_ids.*' => 'required|integer|exists:disciplines,id',
             'disciplines' => 'sometimes|array',
             'disciplines.*' => 'required|integer|exists:disciplines,id',
-        ]);
+            'sections' => 'sometimes|array',
+            'sections.*.content' => 'nullable|string',
+            'sections.*.image' => 'nullable|image|max:4096',
+            'sections.*.caption' => 'nullable|string|max:255',
+            'sections.*.order' => 'nullable|integer',
+        ];
+
+        // Add validation for old format (backward compatibility)
+        for ($i = 1; $i <= 20; $i++) {
+            $validationRules["content{$i}"] = 'sometimes|nullable|string';
+            $validationRules["image{$i}"] = 'sometimes|nullable|image|max:4096';
+            $validationRules["caption{$i}"] = 'sometimes|nullable|string|max:255';
+        }
+
+        $validator = Validator::make($request->all(), $validationRules);
 
         if ($validator->fails()) {
             return $this->error($validator->errors()->first(), 422);
@@ -135,32 +143,70 @@ class ProjectController extends Controller
             $data = $validator->validated();
             $data['created_by'] = Auth::id();
 
-            // Handle file uploads
+            // Handle cover photo upload
             if ($request->hasFile('cover_photo')) {
                 $data['cover_photo'] = $request->file('cover_photo')->store('projects/covers', 'public');
                 // Sync to web-accessible storage
                 StorageHelper::syncToPublic($data['cover_photo']);
             }
 
-            if ($request->hasFile('image1')) {
-                $data['image1'] = $request->file('image1')->store('projects/sections', 'public');
-                // Sync to web-accessible storage
-                StorageHelper::syncToPublic($data['image1']);
+            // Handle sections - support old format (content1, image1, caption1) 
+            $sections = $data['sections'] ?? [];
+            
+            // Convert old format to new format if sections array is empty
+            if (empty($sections)) {
+                for ($i = 1; $i <= 20; $i++) { // Support up to 20 sections
+                    $contentKey = "content{$i}";
+                    $imageKey = "image{$i}";
+                    $captionKey = "caption{$i}";
+                    
+                    // Check if this section has content or image
+                    if ($request->has($contentKey) || $request->hasFile($imageKey)) {
+                        $sectionData = [
+                            'content' => $request->input($contentKey),
+                            'caption' => $request->input($captionKey),
+                            'order' => $i - 1,
+                        ];
+                        
+                        if ($request->hasFile($imageKey)) {
+                            $sectionData['image'] = $request->file($imageKey);
+                        }
+                        
+                        $sections[] = $sectionData;
+                    }
+                }
             }
 
-            if ($request->hasFile('image2')) {
-                $data['image2'] = $request->file('image2')->store('projects/sections', 'public');
-                // Sync to web-accessible storage
-                StorageHelper::syncToPublic($data['image2']);
-            }
-
-            if ($request->hasFile('image3')) {
-                $data['image3'] = $request->file('image3')->store('projects/sections', 'public');
-                // Sync to web-accessible storage
-                StorageHelper::syncToPublic($data['image3']);
+            // Remove sections and other non-model fields from data before creating project
+            unset($data['sections'], $data['discipline_ids'], $data['disciplines']);
+            
+            // Remove old format fields if they exist
+            for ($i = 1; $i <= 20; $i++) {
+                unset($data["content{$i}"], $data["image{$i}"], $data["caption{$i}"]);
             }
 
             $project = Project::create($data);
+
+            // Create sections
+            if (!empty($sections)) {
+                foreach ($sections as $index => $sectionData) {
+                    $sectionToCreate = [
+                        'project_id' => $project->id,
+                        'content' => $sectionData['content'] ?? null,
+                        'caption' => $sectionData['caption'] ?? null,
+                        'order' => $sectionData['order'] ?? $index,
+                    ];
+
+                    // Handle section image upload
+                    if (isset($sectionData['image']) && $sectionData['image'] instanceof \Illuminate\Http\UploadedFile) {
+                        $imagePath = $sectionData['image']->store('projects/sections', 'public');
+                        StorageHelper::syncToPublic($imagePath);
+                        $sectionToCreate['image'] = $imagePath;
+                    }
+
+                    $project->sections()->create($sectionToCreate);
+                }
+            }
 
             // Sync disciplines if provided (accepts both 'discipline_ids' and 'disciplines')
             $disciplineField = $request->has('discipline_ids') ? 'discipline_ids' : ($request->has('disciplines') ? 'disciplines' : null);
@@ -171,7 +217,7 @@ class ProjectController extends Controller
                 $project->disciplines()->sync($disciplineIds);
             }
 
-            return $this->success(new ProjectResource($project->load(['author', 'disciplines'])), 'Project created successfully', 201);
+            return $this->success(new ProjectResource($project->load(['author', 'disciplines', 'sections'])), 'Project created successfully', 201);
         } catch (\Exception $e) {
             Log::error('Project creation failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return $this->error('Operation failed', 500);
@@ -191,23 +237,31 @@ class ProjectController extends Controller
 
         $project = Project::findByEncodedIdOrFail($encodedId);
         
-        $validator = Validator::make($request->all(), [
+        $validationRules = [
             'title' => 'sometimes|required|string|max:255',
             'slug' => 'sometimes|required|string|max:255|unique:projects,slug,' . $project->id,
             'description' => 'sometimes|required|string',
             'cover_photo' => 'sometimes|nullable|image|max:4096',
-            'content1' => 'sometimes|nullable|string',
-            'image1' => 'sometimes|nullable|image|max:4096',
-            'content2' => 'sometimes|nullable|string',
-            'image2' => 'sometimes|nullable|image|max:4096',
-            'content3' => 'sometimes|nullable|string',
-            'image3' => 'sometimes|nullable|image|max:4096',
             'is_active' => 'sometimes|boolean',
             'discipline_ids' => 'sometimes|array',
             'discipline_ids.*' => 'required|integer|exists:disciplines,id',
             'disciplines' => 'sometimes|array',
             'disciplines.*' => 'required|integer|exists:disciplines,id',
-        ]);
+            'sections' => 'sometimes|array',
+            'sections.*.content' => 'nullable|string',
+            'sections.*.image' => 'nullable|image|max:4096',
+            'sections.*.caption' => 'nullable|string|max:255',
+            'sections.*.order' => 'nullable|integer',
+        ];
+
+        // Add validation for old format (backward compatibility)
+        for ($i = 1; $i <= 20; $i++) {
+            $validationRules["content{$i}"] = 'sometimes|nullable|string';
+            $validationRules["image{$i}"] = 'sometimes|nullable|image|max:4096';
+            $validationRules["caption{$i}"] = 'sometimes|nullable|string|max:255';
+        }
+
+        $validator = Validator::make($request->all(), $validationRules);
 
         if ($validator->fails()) {
             return $this->error($validator->errors()->first(), 422);
@@ -233,26 +287,108 @@ class ProjectController extends Controller
                 $data['cover_photo'] = null;
             }
 
-            // Handle section images - check if they should be removed or updated
-            for ($i = 1; $i <= 3; $i++) {
-                $imageKey = "image{$i}";
-                
-                if ($request->hasFile($imageKey)) {
-                    // Delete old image if exists
-                    if ($project->$imageKey) {
-                        Storage::disk('public')->delete($project->$imageKey);
+            // Handle sections update - support both old format (content1, image1, caption1) and new format
+            $sections = $data['sections'] ?? [];
+            $hasOldFormatSections = false;
+            
+            // Get existing sections to preserve images
+            $existingSections = $project->sections->keyBy('order')->toArray();
+            
+            // Convert old format to new format if sections array is empty
+            if (empty($sections)) {
+                for ($i = 1; $i <= 20; $i++) {
+                    $contentKey = "content{$i}";
+                    $imageKey = "image{$i}";
+                    $captionKey = "caption{$i}";
+                    
+                    // Check if this section has content or image or caption
+                    if ($request->has($contentKey) || $request->hasFile($imageKey) || $request->has($captionKey)) {
+                        $hasOldFormatSections = true;
+                        $sectionData = [
+                            'content' => $request->input($contentKey),
+                            'caption' => $request->input($captionKey),
+                            'order' => $i - 1,
+                        ];
+                        
+                        // If new image file is uploaded, use it
+                        if ($request->hasFile($imageKey)) {
+                            $sectionData['image'] = $request->file($imageKey);
+                        }
+                        // If image is sent as string (existing path), preserve it
+                        elseif ($request->has($imageKey) && is_string($request->input($imageKey))) {
+                            $sectionData['existing_image'] = $request->input($imageKey);
+                        }
+                        // Otherwise, try to preserve from existing section
+                        elseif (isset($existingSections[$i - 1]['image'])) {
+                            $sectionData['existing_image'] = $existingSections[$i - 1]['image'];
+                        }
+                        
+                        $sections[] = $sectionData;
                     }
-                    // Upload new image
-                    $data[$imageKey] = $request->file($imageKey)->store('projects/sections', 'public');
-                    // Sync to web-accessible storage
-                    StorageHelper::syncToPublic($data[$imageKey]);
-                } elseif ($request->has($imageKey) && $request->input($imageKey) === null) {
-                    // If image field is explicitly set to null, remove the existing image
-                    if ($project->$imageKey) {
-                        Storage::disk('public')->delete($project->$imageKey);
-                    }
-                    $data[$imageKey] = null;
                 }
+            }
+
+            // Only update sections if sections array is provided or old format fields are present
+            if (!empty($sections) || $hasOldFormatSections) {
+                // Collect images to delete (only delete images that are being replaced)
+                $imagesToDelete = [];
+                foreach ($project->sections as $section) {
+                    if ($section->image) {
+                        $imagesToDelete[$section->order] = $section->image;
+                    }
+                }
+                
+                // Delete all existing sections (but keep track of images)
+                $project->sections()->delete();
+
+                // Create new sections
+                foreach ($sections as $index => $sectionData) {
+                    $sectionToCreate = [
+                        'project_id' => $project->id,
+                        'content' => $sectionData['content'] ?? null,
+                        'caption' => $sectionData['caption'] ?? null,
+                        'order' => $sectionData['order'] ?? $index,
+                    ];
+
+                    // Handle section image upload (new file)
+                    if (isset($sectionData['image']) && $sectionData['image'] instanceof \Illuminate\Http\UploadedFile) {
+                        $imagePath = $sectionData['image']->store('projects/sections', 'public');
+                        StorageHelper::syncToPublic($imagePath);
+                        $sectionToCreate['image'] = $imagePath;
+                        
+                        // Delete old image for this order if it exists and is different
+                        $order = $sectionData['order'] ?? $index;
+                        if (isset($imagesToDelete[$order])) {
+                            Storage::disk('public')->delete($imagesToDelete[$order]);
+                            unset($imagesToDelete[$order]);
+                        }
+                    }
+                    // Preserve existing image path
+                    elseif (isset($sectionData['existing_image'])) {
+                        $sectionToCreate['image'] = $sectionData['existing_image'];
+                        
+                        // Don't delete this image
+                        $order = $sectionData['order'] ?? $index;
+                        if (isset($imagesToDelete[$order])) {
+                            unset($imagesToDelete[$order]);
+                        }
+                    }
+
+                    $project->sections()->create($sectionToCreate);
+                }
+                
+                // Delete any remaining old images that weren't preserved
+                foreach ($imagesToDelete as $imagePath) {
+                    Storage::disk('public')->delete($imagePath);
+                }
+            }
+
+            // Remove sections and discipline fields from data before updating project
+            unset($data['sections'], $data['discipline_ids'], $data['disciplines']);
+            
+            // Remove old format fields if they exist
+            for ($i = 1; $i <= 20; $i++) {
+                unset($data["content{$i}"], $data["image{$i}"], $data["caption{$i}"]);
             }
 
             $project->update($data);
@@ -266,7 +402,7 @@ class ProjectController extends Controller
                 $project->disciplines()->sync($disciplineIds);
             }
 
-            return $this->success(new ProjectResource($project->fresh()->load(['author', 'disciplines'])), 'Project updated successfully');
+            return $this->success(new ProjectResource($project->fresh()->load(['author', 'disciplines', 'sections'])), 'Project updated successfully');
         } catch (\Exception $e) {
             Log::error('Project update failed', ['error' => $e->getMessage(), 'project_id' => $encodedId, 'trace' => $e->getTraceAsString()]);
             return $this->error('Operation failed', 500);
@@ -290,14 +426,12 @@ class ProjectController extends Controller
             if ($project->cover_photo) {
                 Storage::disk('public')->delete($project->cover_photo);
             }
-            if ($project->image1) {
-                Storage::disk('public')->delete($project->image1);
-            }
-            if ($project->image2) {
-                Storage::disk('public')->delete($project->image2);
-            }
-            if ($project->image3) {
-                Storage::disk('public')->delete($project->image3);
+
+            // Delete section images
+            foreach ($project->sections as $section) {
+                if ($section->image) {
+                    Storage::disk('public')->delete($section->image);
+                }
             }
             
             $project->delete();
@@ -363,19 +497,18 @@ class ProjectController extends Controller
                 try {
                     $project = Project::findByEncodedId($encodedId);
                     if ($project) {
-                        // Delete images if exist
+                        // Delete cover photo if exists
                         if ($project->cover_photo) {
                             StorageHelper::deleteFromDirectory($project->cover_photo);
                         }
-                        if ($project->image1) {
-                            StorageHelper::deleteFromDirectory($project->image1);
+
+                        // Delete section images
+                        foreach ($project->sections as $section) {
+                            if ($section->image) {
+                                StorageHelper::deleteFromDirectory($section->image);
+                            }
                         }
-                        if ($project->image2) {
-                            StorageHelper::deleteFromDirectory($project->image2);
-                        }
-                        if ($project->image3) {
-                            StorageHelper::deleteFromDirectory($project->image3);
-                        }
+
                         $project->delete();
                         $deletedCount++;
                     }
