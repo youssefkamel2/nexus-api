@@ -110,7 +110,7 @@ class ServiceController extends Controller
 
         $validationRules = [
             'title' => 'required|string|max:255',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'slug' => 'required|string|max:255|unique:services,slug',
             'cover_photo' => 'required|image|max:4096',
             'is_active' => 'sometimes|boolean',
@@ -238,7 +238,7 @@ class ServiceController extends Controller
         
         $validationRules = [
             'title' => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|required|string',
+            'description' => 'sometimes|nullable|string',
             'slug' => 'sometimes|required|string|max:255|unique:services,slug,' . $service->id,
             'cover_photo' => 'sometimes|required|image|max:4096',
             'is_active' => 'sometimes|boolean',

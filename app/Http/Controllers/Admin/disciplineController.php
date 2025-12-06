@@ -29,6 +29,7 @@ class disciplineController extends Controller
             return [
                 'id' => $discipline->id,
                 'title' => $discipline->title,
+                'description' =>$discipline->description,
                 'is_active' => $discipline->is_active,
                 'created_by' => $discipline->createdBy->name,
                 'created_at' => $discipline->created_at,
@@ -45,6 +46,7 @@ class disciplineController extends Controller
 
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
             'is_active' => 'required|boolean',
         ]);
 
@@ -69,6 +71,7 @@ class disciplineController extends Controller
 
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
+            'description'=> 'nullable|string',
             'is_active' => 'required|boolean',
         ]);
 

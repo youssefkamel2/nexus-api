@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('disciplines', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            // description
+            $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
             $table->unsignedBigInteger('created_by');
             $table->timestamps();

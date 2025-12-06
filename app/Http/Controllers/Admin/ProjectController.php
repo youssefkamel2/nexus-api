@@ -112,7 +112,7 @@ class ProjectController extends Controller
         $validationRules = [
             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:projects,slug',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'cover_photo' => 'required|image|max:4096',
             'is_active' => 'sometimes|boolean',
             'discipline_ids' => 'sometimes|array',
@@ -240,7 +240,7 @@ class ProjectController extends Controller
         $validationRules = [
             'title' => 'sometimes|required|string|max:255',
             'slug' => 'sometimes|required|string|max:255|unique:projects,slug,' . $project->id,
-            'description' => 'sometimes|required|string',
+            'description' => 'sometimes|nullable|string',
             'cover_photo' => 'sometimes|nullable|image|max:4096',
             'is_active' => 'sometimes|boolean',
             'discipline_ids' => 'sometimes|array',
