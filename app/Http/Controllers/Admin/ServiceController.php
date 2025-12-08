@@ -44,6 +44,7 @@ class ServiceController extends Controller
                 'slug' => $service->slug,
                 'cover_photo' => $service->cover_photo ? env('APP_URL') . '/storage/' . $service->cover_photo : null,
                 'is_active' => $service->is_active,
+                'show_on_home' => $service->show_on_home,
                 'disciplines' => $service->disciplines->map(function ($discipline) {
                     return [
                         'id' => $discipline->id,
@@ -114,6 +115,7 @@ class ServiceController extends Controller
             'slug' => 'required|string|max:255|unique:services,slug',
             'cover_photo' => 'required|image|max:4096',
             'is_active' => 'sometimes|boolean',
+            'show_on_home' => 'sometimes|boolean',
             'discipline_ids' => 'sometimes|array',
             'discipline_ids.*' => 'required|integer|exists:disciplines,id',
             'disciplines' => 'sometimes|array',
@@ -141,6 +143,11 @@ class ServiceController extends Controller
         try {
             $data = $validator->validated();
             $data['created_by'] = Auth::id();
+            
+            // Sanitize: Convert string "null" to actual null
+            if (isset($data['description']) && $data['description'] === 'null') {
+                $data['description'] = null;
+            }
 
             // Handle cover photo upload
             if ($request->hasFile('cover_photo')) {
@@ -242,6 +249,7 @@ class ServiceController extends Controller
             'slug' => 'sometimes|required|string|max:255|unique:services,slug,' . $service->id,
             'cover_photo' => 'sometimes|required|image|max:4096',
             'is_active' => 'sometimes|boolean',
+            'show_on_home' => 'sometimes|boolean',
             'discipline_ids' => 'sometimes|array',
             'discipline_ids.*' => 'required|integer|exists:disciplines,id',
             'disciplines' => 'sometimes|array',
@@ -269,6 +277,11 @@ class ServiceController extends Controller
 
         try {
             $data = $validator->validated();
+            
+            // Sanitize: Convert string "null" to actual null
+            if (isset($data['description']) && $data['description'] === 'null') {
+                $data['description'] = null;
+            }
 
             // Handle cover photo upload
             if ($request->hasFile('cover_photo')) {
@@ -308,12 +321,16 @@ class ServiceController extends Controller
                         if ($request->hasFile($imageKey)) {
                             $sectionData['image'] = $request->file($imageKey);
                         }
-                        // If image is sent as string (existing path), preserve it
-                        elseif ($request->has($imageKey) && is_string($request->input($imageKey))) {
+                        // If image is sent as empty string, mark for deletion
+                        elseif ($request->has($imageKey) && $request->input($imageKey) === '') {
+                            $sectionData['delete_image'] = true;
+                        }
+                        // If image is sent as non-empty string (existing path), preserve it
+                        elseif ($request->has($imageKey) && is_string($request->input($imageKey)) && $request->input($imageKey) !== '') {
                             $sectionData['existing_image'] = $request->input($imageKey);
                         }
-                        // Otherwise, try to preserve from existing section
-                        elseif (isset($existingSections[$i - 1]['image'])) {
+                        // If image is not sent at all, preserve from existing section
+                        elseif (!$request->has($imageKey) && isset($existingSections[$i - 1]['image'])) {
                             $sectionData['existing_image'] = $existingSections[$i - 1]['image'];
                         }
                         
@@ -351,6 +368,17 @@ class ServiceController extends Controller
                         $sectionToCreate['image'] = $imagePath;
                         
                         // Delete old image for this order if it exists and is different
+                        $order = $sectionData['order'] ?? $index;
+                        if (isset($imagesToDelete[$order])) {
+                            \Illuminate\Support\Facades\Storage::disk('public')->delete($imagesToDelete[$order]);
+                            unset($imagesToDelete[$order]);
+                        }
+                    }
+                    // If delete_image flag is set, don't set image (will be null) and delete old image
+                    elseif (isset($sectionData['delete_image']) && $sectionData['delete_image']) {
+                        $sectionToCreate['image'] = null;
+                        
+                        // Delete old image for this order if it exists
                         $order = $sectionData['order'] ?? $index;
                         if (isset($imagesToDelete[$order])) {
                             \Illuminate\Support\Facades\Storage::disk('public')->delete($imagesToDelete[$order]);

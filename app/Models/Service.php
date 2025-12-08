@@ -18,6 +18,7 @@ class Service extends Model
     protected $fillable = [
         'title',
         'description',
+        'show_on_home',
         'slug',
         'cover_photo',
         'is_active',
@@ -31,6 +32,7 @@ class Service extends Model
      */
     protected $casts = [
         'is_active' => 'boolean',
+        'show_on_home' => 'boolean',
     ];
 
     /**
@@ -48,6 +50,7 @@ class Service extends Model
     {
         return $query->where('is_active', true);
     }
+    
 
     /**
      * Get the service by slug.
@@ -55,6 +58,12 @@ class Service extends Model
     public function scopeBySlug($query, $slug)
     {
         return $query->where('slug', $slug);
+    }
+
+    // showOnHome
+    public function scopeShowOnHome($query)
+    {
+        return $query->where('show_on_home', true);
     }
 
     /**

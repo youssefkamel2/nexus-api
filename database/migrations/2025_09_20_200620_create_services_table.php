@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->string('description')->nullable();
+            // show_on_home
+            $table->boolean('show_on_home')->default(false);
             $table->string('slug')->unique();
             $table->string('cover_photo');
             

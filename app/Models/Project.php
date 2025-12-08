@@ -21,6 +21,7 @@ class Project extends Model
         'description',
         'cover_photo',
         'is_active',
+        'show_on_home',
         'created_by',
     ];
 
@@ -31,6 +32,7 @@ class Project extends Model
      */
     protected $casts = [
         'is_active' => 'boolean',
+        'show_on_home' => 'boolean',
     ];
 
     /**
@@ -47,6 +49,12 @@ class Project extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    // showOnHome
+    public function scopeShowOnHome($query)
+    {
+        return $query->where('show_on_home', true);
     }
 
     /**

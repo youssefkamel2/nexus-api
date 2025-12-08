@@ -18,9 +18,9 @@ class HomeController extends Controller
     // one api return : only 4 services, all testimonials, only 6 projects
     public function index()
     {
-        $services = Service::with('author')->active()->limit(4)->get();
+        $services = Service::with('author')->active()->showOnHome()->limit(6)->get();
         $testimonials = Feedback::active()->get();
-        $projects = Project::with('author')->active()->limit(6)->get();
+        $projects = Project::with('author')->active()->showOnHome()->limit(6)->get();
         
         return $this->success([
             'services' => ServiceResource::collection($services),

@@ -19,8 +19,7 @@ class ServiceController extends Controller
      */
     public function index()
     {
-        // return only 6 services
-        $services = Service::with('author')->active()->limit(6)->get();
+        $services = Service::with('author')->active()->get();
         return $this->success(ServiceResource::collection($services), 'Services retrieved successfully');
     }
 

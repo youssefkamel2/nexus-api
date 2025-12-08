@@ -57,6 +57,11 @@ class disciplineController extends Controller
         $data = $validator->validated();
 
         $data['created_by'] = auth()->id();
+        
+        // Sanitize: Convert string "null" to actual null
+        if (isset($data['description']) && $data['description'] === 'null') {
+            $data['description'] = null;
+        }
 
 
         $discipline = Discipline::create($data);
@@ -80,6 +85,11 @@ class disciplineController extends Controller
         }
         
         $data = $validator->validated();
+        
+        // Sanitize: Convert string "null" to actual null
+        if (isset($data['description']) && $data['description'] === 'null') {
+            $data['description'] = null;
+        }
 
         $discipline->update($data);
         return $this->success($discipline, 'Discipline updated successfully');

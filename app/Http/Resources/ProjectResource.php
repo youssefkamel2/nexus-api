@@ -31,6 +31,7 @@ class ProjectResource extends JsonResource
                 ];
             }),
             'is_active' => $this->is_active,
+            'show_on_home' => $this->show_on_home,
             'disciplines' => $this->disciplines,
             'author' => [
                 'id' => $this->author->encoded_id,
