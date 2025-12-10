@@ -426,7 +426,7 @@ class disciplineController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->error('Unable to process request', 422);
+            return $this->error($validator->errors()->first(), 422);
         }
 
         try {
@@ -479,11 +479,11 @@ class disciplineController extends Controller
         $validator = Validator::make($request->all(), [
             'ids' => 'required|array|min:1',
             'ids.*' => 'required|string',
-            'is_active' => 'required|boolean'
+            'status' => 'required|boolean'
         ]);
 
         if ($validator->fails()) {
-            return $this->error('Unable to process request', 422);
+            return $this->error($validator->errors()->first(), 422);
         }
 
         try {
@@ -494,7 +494,7 @@ class disciplineController extends Controller
                 try {
                     $discipline = Discipline::findByEncodedId($encodedId);
                     if ($discipline) {
-                        $discipline->update(['is_active' => $request->is_active]);
+                        $discipline->update(['is_active' => $request->status]);
                         $updatedCount++;
                     }
                 } catch (\Exception $e) {
