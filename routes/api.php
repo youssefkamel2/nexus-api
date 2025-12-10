@@ -187,10 +187,15 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth:api']], function () {
     // disciplines
     Route::group(['prefix' => 'disciplines'], function () {
         Route::get('/', [AdminDisciplineController::class, 'index']);
+        Route::get('/{encodedId}', [AdminDisciplineController::class, 'show']);
         Route::post('/', [AdminDisciplineController::class, 'store']);
         Route::put('/{encodedId}', [AdminDisciplineController::class, 'update']);
         Route::delete('/{encodedId}', [AdminDisciplineController::class, 'destroy']);
         Route::patch('/{encodedId}/toggle-active', [AdminDisciplineController::class, 'toggleActive']);
+        
+        // Bulk operations
+        Route::post('/bulk/delete', [AdminDisciplineController::class, 'bulkDelete']);
+        Route::post('/bulk/update-status', [AdminDisciplineController::class, 'bulkUpdateStatus']);
     });
 
 
@@ -261,6 +266,7 @@ Route::group(['prefix' => 'public'], function () {
     // disciplines
     Route::group(['prefix' => 'disciplines'], function () {
         Route::get('/', [ApiDisciplineController::class, 'index']);
+        Route::get('/{encodedId}', [ApiDisciplineController::class, 'show']);
     });
 });
 

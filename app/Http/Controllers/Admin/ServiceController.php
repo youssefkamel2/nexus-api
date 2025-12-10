@@ -49,6 +49,8 @@ class ServiceController extends Controller
                     return [
                         'id' => $discipline->id,
                         'title' => $discipline->title,
+                        'slug' => $discipline->slug,
+                        'order' => $discipline->order,
                     ];
                 }),
                 'author' => [

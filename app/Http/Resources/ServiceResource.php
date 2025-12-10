@@ -31,7 +31,17 @@ class ServiceResource extends JsonResource
             }),
             'is_active' => $this->is_active,
             'show_on_home' => $this->show_on_home,
-            'disciplines' => $this->disciplines,
+            'disciplines' => $this->disciplines->map(function ($discipline) {
+                return [
+                    'id' => $discipline->id,
+                    'title' => $discipline->title,
+                    'slug' => $discipline->slug,
+                    'description' => $discipline->description,
+                    'cover_photo' => $discipline->cover_photo ? env('APP_URL') . '/storage/' . $discipline->cover_photo : null,
+                    'order' => $discipline->order,
+                    'is_active' => $discipline->is_active,
+                ];
+            }),
             'author' => [
                 'id' => $this->author->encoded_id,
                 'name' => $this->author->name,
